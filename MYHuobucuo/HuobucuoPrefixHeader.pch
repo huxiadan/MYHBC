@@ -1,0 +1,33 @@
+//
+//  HuobucuoPrefixHeader.pch
+//  Huobucuo
+//
+//  Created by hudan on 16/8/30.
+//  Copyright © 2016年 胡丹. All rights reserved.
+//
+
+#ifndef HuobucuoPrefixHeader_pch
+#define HuobucuoPrefixHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#import "CommHeader.h"
+
+#import "HDDeviceInfo.h"
+
+// category
+#import "NSString+HD.h"
+#import "NSArray+HD.h"
+#import "NSMutableArray+HD.h"
+#import "NSMutableDictionary+HD.h"
+#import "UIView+HD.h"
+#import "HDColor.h"
+
+#import "MYImageNameHeader.h"
+#import "MYCommonHeader.h"
+#import "UserManager.h"
+#import "MYEnumsHeader.h"
+
+#endif /* HuobucuoPrefixHeader_pch */
+

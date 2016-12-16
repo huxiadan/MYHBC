@@ -91,6 +91,7 @@
     UIButton *anonymityButton = [[UIButton alloc] init];
     [anonymityButton setImage:[UIImage imageNamed:@"icon_no"] forState:UIControlStateNormal];
     [anonymityButton setImage:[UIImage imageNamed:@"icon_ok"] forState:UIControlStateSelected];
+    [anonymityButton addTarget:self action:@selector(anonymityButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     [bottomView addSubview:anonymityButton];
     [anonymityButton mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.top.bottom.equalTo(bottomView);
@@ -141,7 +142,14 @@
 
 #pragma mark - button click
 - (void)sendReviewClick:(UIButton *)sender
-{}
+{
+    
+}
+
+- (void)anonymityButtonClick:(UIButton *)sender
+{
+    sender.selected = !sender.isSelected;
+}
 
 #pragma mark - tableView dataSource & delegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section

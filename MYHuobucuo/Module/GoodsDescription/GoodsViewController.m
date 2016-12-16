@@ -137,6 +137,10 @@
         [weakSelf.navigationController pushViewController:storeVC animated:YES];
     };
     
+    self.bottomView.addShopCarBlock = ^ () {
+        [MYProgressHUD showAlertWithMessage:@"添加购物车成功~"];
+    };
+    
     [self.view addSubview:self.bottomView];
     
     [self.bottomView mas_makeConstraints:^(MASConstraintMaker *make) {

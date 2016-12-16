@@ -27,4 +27,7 @@
 
 @property (nonatomic, assign) BOOL hidden;
 
+// 设置第一个为添加
+- (void)setFirstAddButton;
+
 @end

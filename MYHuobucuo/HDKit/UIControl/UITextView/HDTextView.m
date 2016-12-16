@@ -22,6 +22,9 @@
 {
     if (self = [super init]) {
         [self initData];
+        
+        // 先关闭可编辑,影响 placeholder 手势触发
+        [self setEditable:NO];
     }
     return self;
 }
@@ -49,6 +52,7 @@
 - (void)placeholderHideToBeginEdit
 {
     [self.placeHolderLabel setHidden:YES];
+    [self setEditable:YES];
     
     [self becomeFirstResponder];
 }
@@ -165,8 +169,9 @@
 
 - (void)textViewDidEndEditing:(UITextView *)textView
 {
-    if (textView.text.length == 0) {
+    if (textView.text.length == 0 || [textView.text isEqualToString:@" "]) {
         [self.placeHolderLabel setHidden:NO];
+        [self setEditable:NO];
     }
 }
 

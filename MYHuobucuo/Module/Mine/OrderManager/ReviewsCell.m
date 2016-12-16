@@ -40,6 +40,9 @@
 
 - (void)initUI
 {
+    // 关闭选中高亮
+    [self setSelectionStyle:UITableViewCellSelectionStyleNone];
+    
     // 商品图片
     UIImageView *goodsImageView = [[UIImageView alloc] init];
     [goodsImageView sd_setImageWithURL:[NSURL URLWithString:@""] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];

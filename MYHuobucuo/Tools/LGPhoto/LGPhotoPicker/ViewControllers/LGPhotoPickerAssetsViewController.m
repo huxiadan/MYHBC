@@ -91,7 +91,7 @@ static NSString *const _identifier = @"toolBarThumbCollectionViewCell";
         rightBtn.enabled = YES;
         rightBtn.titleLabel.font = [UIFont systemFontOfSize:17];
         rightBtn.frame = CGRectMake(0, 0, 60, 45);
-        NSString *title = [NSString stringWithFormat:@"发送(%d)",0];
+        NSString *title = [NSString stringWithFormat:@"确定(%d)",0];
         [rightBtn setTitle:title forState:UIControlStateNormal];
         [rightBtn addTarget:self action:@selector(sendBtnTouched) forControlEvents:UIControlEventTouchUpInside];
         self.sendBtn = rightBtn;
@@ -411,7 +411,7 @@ static NSString *const _identifier = @"toolBarThumbCollectionViewCell";
     NSInteger count = self.selectAssets.count;
     self.sendBtn.enabled = (count > 0);
     self.previewBtn.enabled = (count > 0);
-    NSString *title = [NSString stringWithFormat:@"发送(%ld)",(long)count];
+    NSString *title = [NSString stringWithFormat:@"确定(%ld)",(long)count];
     [self.sendBtn setTitle:title forState:UIControlStateNormal];
 }
 

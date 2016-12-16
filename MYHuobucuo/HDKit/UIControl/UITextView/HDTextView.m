@@ -79,7 +79,7 @@
     
     self.placeHolderLabel = [[UILabel alloc] init];
     [self.placeHolderLabel setFont:[UIFont systemFontOfSize:self.placeholderFontSize]];
-    [self.placeHolderLabel setTextColor:HexColor(0x999)];
+    [self.placeHolderLabel setTextColor:HexColor(0x999999)];
     
     // 添加手势
     UITapGestureRecognizer *tapGtr = [[UITapGestureRecognizer alloc] init];

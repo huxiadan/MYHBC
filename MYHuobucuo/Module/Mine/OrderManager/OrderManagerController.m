@@ -15,6 +15,7 @@
 #import "MineOrderTabHeaderView.h"
 #import "MineOrderTabFooterView.h"
 #import "MineOrderDetailController.h"
+#import "ReviewsController.h"
 
 @interface OrderManagerController () <UITableViewDataSource, UITableViewDelegate>
 
@@ -307,6 +308,33 @@
     OrderShopModel *shopModel = [self.shopModelArray objectAtIndex:section];
     MineOrderTabFooterView *footer = [[MineOrderTabFooterView alloc] init];
     [footer setOrderShopModel:shopModel];
+    
+    __weak typeof(self) weakSelf = self;
+    footer.rightButtonBlock = ^(OrderShopState state) {
+        
+        UIViewController *toVC;
+        switch (state) {
+            case OrderShopState_WaitEvaluate:
+            case OrderShopState_WaitReceive:
+                // 确认收货和待评价都跳转评价界面
+            {
+                ReviewsController *reviewVC = [[ReviewsController alloc] initWithOrderModel:shopModel];
+                toVC = reviewVC;
+            }
+                break;
+            case OrderShopState_WaitPay:
+                break;
+            case OrderShopState_WaitSend:
+                break;
+                
+            default:
+                break;
+        }
+        
+        if (toVC) {
+            [weakSelf.navigationController pushViewController:toVC animated:YES];
+        }
+    };
     return footer;
 }
 

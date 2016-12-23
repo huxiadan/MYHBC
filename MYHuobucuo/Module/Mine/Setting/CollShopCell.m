@@ -116,7 +116,7 @@
 {
     _model = model;
     
-    [self.shopImageView sd_setImageWithURL:[NSURL URLWithString:model.shopImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.shopImageView sd_setImageWithURL:[NSURL URLWithString:model.shopImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     [self.shopNameLabel setText:model.shopName];
     
     NSString *iconName;

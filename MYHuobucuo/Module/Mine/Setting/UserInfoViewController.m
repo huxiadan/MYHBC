@@ -92,13 +92,16 @@
     [userIcon setBackgroundColor:[UIColor grayColor]];
     [userIcon.layer setCornerRadius:fScreen(58)/2];
     [userIcon.layer setMasksToBounds:YES];
-    [userIcon setImage:[UIImage imageNamed:cUserIcon]];
+    [userIcon setImage:[UIImage imageNamed:[HDUserDefaults objectForKey:cUserIcon]]];
     self.userIcon = userIcon;
     
     UIView *userHeaderView = [self makeOptionCellWithTitle:@"头像" tag:kOptionCellButtonTag + 0 hasArrow:YES rightView:userIcon];
     
     // 昵称
-    UILabel *userNameLabel = [self makeRightViewLabel:[HDUserDefaults objectForKey:cUserName] == nil ? @"" : [NSString stringWithFormat:@"%@", [HDUserDefaults objectForKey:cUserName]]];
+    UILabel *userNameLabel = [self makeRightViewLabel:[HDUserDefaults objectForKey:cUserName] == nil ?
+                              [NSString stringWithFormat:@"用户%@", [HDUserDefaults objectForKey:cUserid]] :
+                              [NSString stringWithFormat:@"%@", [HDUserDefaults objectForKey:cUserName]]];
+    
     self.nameLabel = userNameLabel;
     UIView *userNameView = [self makeOptionCellWithTitle:@"昵称" tag:kOptionCellButtonTag + 1 hasArrow:YES rightView:userNameLabel];
     
@@ -363,8 +366,8 @@
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info
 {
-    UIImage* image=[info objectForKey:UIImagePickerControllerOriginalImage];
-    UIImageOrientation imageOrientation=image.imageOrientation;
+    UIImage* image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    UIImageOrientation imageOrientation = image.imageOrientation;
     if(imageOrientation!=UIImageOrientationUp)
     {
         // 原始图片可以根据照相时的角度来显示，但UIImage无法判定，于是出现获取的图片会向左转９０度的现象。
@@ -378,6 +381,8 @@
     else {
         self.userIcon.image = image;
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kUserHeaderIconChange object:nil];
     
     [picker dismissViewControllerAnimated:YES completion:nil];
     [self hideActionSheet];

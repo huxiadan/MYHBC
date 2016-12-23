@@ -170,7 +170,7 @@
     
     self.goodsId = orderModel.goodsId;
     
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     
     [self adjustNameLabel:orderModel.goodsName];
     [self.goodsSpecificationLabel setText:orderModel.goodsSpecification];

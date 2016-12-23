@@ -45,7 +45,7 @@
     
     // 商品图片
     UIImageView *goodsImageView = [[UIImageView alloc] init];
-    [goodsImageView sd_setImageWithURL:[NSURL URLWithString:@""] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [goodsImageView sd_setImageWithURL:[NSURL URLWithString:@""] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     [self addSubview:goodsImageView];
     [goodsImageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self).offset(fScreen(28));

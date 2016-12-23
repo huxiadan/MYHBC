@@ -24,7 +24,7 @@
         
         [self setBackgroundColor:viewControllerBgColor];
         
-        SDCycleScrollView *cycle = [SDCycleScrollView cycleScrollViewWithFrame:CGRectZero delegate:self placeholderImage:[UIImage imageNamed:@""]];
+        SDCycleScrollView *cycle = [SDCycleScrollView cycleScrollViewWithFrame:CGRectZero delegate:self placeholderImage:[UIImage imageNamed:@"img_load_rect"]];
         [self addSubview:cycle];
         [cycle mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.right.top.equalTo(self);
@@ -50,6 +50,7 @@
     for (BannerModel *model in imagesArray) {
         [tmpArray addObject:model.imageUrl];
     }
+    
     self.cycleView.imageURLStringsGroup = [tmpArray copy];
 }
 

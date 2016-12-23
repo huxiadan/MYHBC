@@ -275,6 +275,7 @@
     };
     cell.shareBlock = ^(ShareModel *shareModel) {
         weakSelf.shareView.shareModel = shareModel;
+        weakSelf.shareView.currNaviController = weakSelf.navigationController;
         [weakSelf.mainView addSubview:weakSelf.shareView];
     };
     

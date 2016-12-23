@@ -9,9 +9,9 @@
 #import "ShareCommissionView.h"
 #import <Masonry.h>
 #import "MYProgressHUD.h"
+#import <MessageUI/MessageUI.h>
 
-
-@interface ShareCommissionView ()
+@interface ShareCommissionView () <MFMessageComposeViewControllerDelegate>
 
 @property (nonatomic, strong) NSString *commissionText;
 
@@ -177,6 +177,38 @@
     return shareCellView;
 }
 
+// 短信
+- (void)showMessageView
+{
+    if( [MFMessageComposeViewController canSendText] )// 判断设备能不能发送短信
+    {
+        MFMessageComposeViewController *messageVC = [[MFMessageComposeViewController alloc] init];
+        // 设置委托
+        messageVC.messageComposeDelegate= self;
+        // 默认信息内容
+        messageVC.body = [NSString stringWithFormat:@"%@,%@", self.shareModel.shareContent, self.shareModel.shareURL];
+        // 默认收件人(可多个)
+        [self.currNaviController presentViewController:messageVC animated:YES completion:nil];
+    }
+    else
+    {
+        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+        
+        NSString *string = [NSString stringWithFormat:@"%@,%@",
+                            self.shareModel.shareContent.length == 0 ? @"" : self.shareModel.shareContent,
+                            self.shareModel.shareURL.length == 0? @"" : self.shareModel.shareURL];
+        
+        pasteboard.string = string;
+        
+        [MYProgressHUD showAlertWithMessage:@"分享内容已经复制到剪切板~"];
+        
+        // 不能定制短信内容
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"sms:"]];
+        });
+    }
+}
+
 #pragma mark - button click
 - (void)closeButtonClick:(UIButton *)sender
 {
@@ -202,6 +234,7 @@
             break;
         case ShareType_Message:
             DLog(@"短信");
+            [self showMessageView];
             break;
         case ShareType_link:
             DLog(@"链接");
@@ -209,6 +242,26 @@
             UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
             pasteboard.string = self.shareModel.shareURL.length == 0 ? @"" :  self.shareModel.shareURL;
             [MYProgressHUD showAlertWithMessage:@"链接已经复制到剪切板~"];
+            break;
+    }
+}
+
+#pragma mark MFMessageComposeViewControllerDelegate
+- (void)messageComposeViewController:(MFMessageComposeViewController *)controller didFinishWithResult:(MessageComposeResult)result
+{
+    switch (result){
+        case MessageComposeResultCancelled:
+            DLog(@"取消发送");
+            [controller dismissViewControllerAnimated:YES completion:nil];
+            break;
+        case MessageComposeResultFailed:
+            [MYProgressHUD showAlertWithMessage:@"发送失败"];
+            break;
+        case MessageComposeResultSent:
+            [MYProgressHUD showAlertWithMessage:@"发送成功"];
+            break;
+            
+        default:
             break;
     }
 }

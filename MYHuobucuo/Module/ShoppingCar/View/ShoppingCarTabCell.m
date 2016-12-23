@@ -256,7 +256,7 @@
     _orderModel = orderModel;
     
     self.selectButton.selected = orderModel.isSelect;
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:orderModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     
     [self.goodsPriceLabel setText:[NSString stringWithFormat:@"¥%@",orderModel.goodsPrice]];
     [self.goodsPriceLabel setHidden:orderModel.isEdit || orderModel.isEditAll];

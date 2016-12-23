@@ -282,22 +282,40 @@
         return;
     }
     
-    [MYProgressHUD showAlertWithMessage:@"短信已发送,请注意查收"];
+    __weak typeof(self) weakSelf = self;
     
-    if (!self.timer) {
-        static NSInteger time = 60;
-        __weak typeof(self) weakSelf = self;
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:1.f repeats:YES block:^(NSTimer * _Nonnull timer) {
-            time--;
-            if (time == 0) {
-                [weakSelf.timer invalidate];
-                [weakSelf.checkCodeButton setTitle:@"重新获取" forState:UIControlStateNormal];
-                [weakSelf.checkCodeButton setEnabled:YES];
-                return ;
+    [NetworkManager getCheckCodeWithPhoneNumber:self.phoneField.text type:MessageCheckCodeType_Register finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@", error.localizedDescription);
+        }
+        else {
+            if (jsonData) {
+                NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                NSDictionary *statusDict = jsonDict[@"status"];
+                if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                    [MYProgressHUD showAlertWithMessage:[NSString stringWithFormat:@"%@",statusDict[@"msg"]]];
+                }
+                else {
+                    [MYProgressHUD showAlertWithMessage:@"短信已发送,请注意查收"];
+                    
+                    if (!weakSelf.timer) {
+                        static NSInteger time = 60;
+                        
+                        weakSelf.timer = [NSTimer scheduledTimerWithTimeInterval:1.f repeats:YES block:^(NSTimer * _Nonnull timer) {
+                            time--;
+                            if (time == 0) {
+                                [weakSelf.timer invalidate];
+                                [weakSelf.checkCodeButton setTitle:@"重新获取" forState:UIControlStateNormal];
+                                [weakSelf.checkCodeButton setEnabled:YES];
+                                return ;
+                            }
+                            [weakSelf.checkCodeButton setTitle:[NSString stringWithFormat:@"%lds",time] forState:UIControlStateNormal];
+                        }];
+                    }
+                }
             }
-            [weakSelf.checkCodeButton setTitle:[NSString stringWithFormat:@"%lds",time] forState:UIControlStateNormal];
-        }];
-    }
+        }
+    }];
 }
 
 - (BOOL)checkPhoneNumber:(NSString *)phoneNumber
@@ -327,7 +345,6 @@
         [MYProgressHUD showAlertWithMessage:@"密码不能超过20个字符!"];
         return;
     }
-        
     
     if (!self.agreeButton.selected) {
         [MYProgressHUD showAlertWithMessage:@"需要同意千县农汇用户服务协议才能注册哦~"];
@@ -335,8 +352,29 @@
     }
     
     // 注册
-    [[NetworkRequest sharedNetworkRequest] userRegisterWithUserName:self.phoneField.text password:self.passwordField.text checkCode:self.checkCodeField.text finishBlock:^(id jsonData, NSError *error) {
-        
+    [NetworkManager userRegisterWithUserName:self.phoneField.text password:self.passwordField.text openId:@"" unionId:@"" finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@", error.localizedDescription);
+            [MYProgressHUD showAlertWithMessage:@"注册失败,请重试~"];
+        }
+        else {
+            if ([jsonData isKindOfClass:[NSDictionary class]]) {
+                NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                
+                NSDictionary *status = jsonDict[@"status"];
+                if ([status[@"code"] isEqualToString:@"10000"]) {
+                    
+                    // 保存需要的数据
+                    NSDictionary *dataDict = jsonDict[@"data"];
+                    NSString *customerId = dataDict[@"customer_id"];
+                    [HDUserDefaults setObject:customerId forKey:cUserid];
+                    [HDUserDefaults synchronize];
+                    
+                    [MYProgressHUD showAlertWithMessage:status[@"msg"]];
+                    [self.navigationController popToRootViewControllerAnimated:YES];
+                }
+            }
+        }
     }];
 }
 

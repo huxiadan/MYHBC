@@ -17,6 +17,8 @@
 #import "EvaluateController.h"
 #import "StoreViewController.h"
 #import "PayOrderDetailController.h"
+#import "MainViewController.h"
+#import "MYTabBarController.h"
 
 #import <Masonry.h>
 
@@ -30,7 +32,7 @@
 // UI
 @property (nonatomic, strong) HDPageViewController *pageViewController;
 @property (nonatomic, strong) GoodsDetailBottomView *bottomView;               // 底部视图
-
+@property (nonatomic, strong) UIView *goodsMoreView;                           // 右上角更多
 
 @end
 
@@ -200,19 +202,48 @@
 // 分享
 - (void)shareButtonClick:(UIButton *)sender
 {
+    self.goodsMoreView.hidden = YES;
+    
     ShareView *shareView = [[ShareView alloc] init];
     [self.view addSubview:shareView];
+    shareView.shareModel = self.goodsModel.shareModel;
+    shareView.currNaviController = self.navigationController;
 }
 
 // 更多
 - (void)moreButtonClick:(UIButton *)sender
-{}
+{
+    self.goodsMoreView.hidden = !self.goodsMoreView.hidden;
+}
 
+// 去主页
+- (void)toMainButtonClick:(UIButton *)sender
+{
+    for (UIViewController *vc in self.navigationController.viewControllers) {
+        if ([vc isKindOfClass:[MainViewController class]]) {
+            
+            [self.navigationController popToRootViewControllerAnimated:YES];
+            
+            return;
+        }
+    }
+    
+    [self.navigationController popToRootViewControllerAnimated:YES];
+    
+    [[MYTabBarController sharedTabBarController] setSelectedIndex:0];
+}
 
+// 帮助
+- (void)helpButtonClick:(UIButton *)sender
+{
+
+}
 
 #pragma mark - HDPageViewController delegate
 - (void)pageViewController:(HDPageViewController *)pageController index:(NSInteger)index
 {
+    self.goodsMoreView.hidden = YES;
+    
     if (index != 0) {
         pageController.isShowTitleLine = YES;
     }
@@ -222,6 +253,66 @@
 }
 
 #pragma mark - Getter
+- (UIView *)goodsMoreView
+{
+    if (!_goodsMoreView) {
+        UIView *moreView = [[UIView alloc] init];
+        [moreView setBackgroundColor:[UIColor whiteColor]];
+        
+        // 首页
+        UIButton *toMainButton = [[UIButton alloc] init];
+        [toMainButton.titleLabel setFont:[UIFont systemFontOfSize:fScreen(28)]];
+        [toMainButton setImage:[UIImage imageNamed:@"goods_icon_shouye"] forState:UIControlStateNormal];
+        [toMainButton setTitle:@"首页" forState:UIControlStateNormal];
+        [toMainButton setTitleColor:HexColor(0x666666) forState:UIControlStateNormal];
+        [toMainButton addTarget:self action:@selector(toMainButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [toMainButton setImageEdgeInsets:UIEdgeInsetsMake(0, -fScreen(10), 0, 0)];
+        [toMainButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, -fScreen(10))];
+        [moreView addSubview:toMainButton];
+        [toMainButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.top.equalTo(moreView);
+            make.bottom.equalTo(moreView.mas_centerY);
+        }];
+        
+        UIView *line = [[UIView alloc] init];
+        [line setBackgroundColor:HexColor(0xdadada)];
+        [moreView addSubview:line];
+        [line mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.equalTo(moreView);
+            make.height.mas_equalTo(fScreen(2));
+            make.top.equalTo(toMainButton.mas_bottom);
+        }];
+        
+        // 帮助
+        UIButton *helpButton = [[UIButton alloc] init];
+        [helpButton.titleLabel setFont:[UIFont systemFontOfSize:fScreen(28)]];
+        [helpButton setImage:[UIImage imageNamed:@"icon_bangzhu"] forState:UIControlStateNormal];
+        [helpButton setTitle:@"帮助" forState:UIControlStateNormal];
+        [helpButton setTitleColor:HexColor(0x666666) forState:UIControlStateNormal];
+        [helpButton addTarget:self action:@selector(helpButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [helpButton setImageEdgeInsets:UIEdgeInsetsMake(0, -fScreen(10), 0, 0)];
+        [helpButton setTitleEdgeInsets:UIEdgeInsetsMake(0, 0, 0, -fScreen(10))];
+        [moreView addSubview:helpButton];
+        [helpButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.bottom.equalTo(moreView);
+            make.top.equalTo(moreView.mas_centerY);
+        }];
+        
+        [self.view addSubview:moreView];
+        [moreView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.equalTo(self.view);
+            make.top.equalTo(self.view).offset(fScreen(88) + 20 + 2);
+            make.height.mas_equalTo(fScreen(184));
+            make.width.mas_equalTo(fScreen(290));
+        }];
+        
+        [moreView setHidden:YES];
+        
+        _goodsMoreView = moreView;
+    }
+    return _goodsMoreView;
+}
+
 - (HDPageViewController *)pageViewController
 {
     if (!_pageViewController) {

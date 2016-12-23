@@ -28,11 +28,16 @@ SingletonH(UserManager)
 
 
 #pragma mark - User model
+#import "MYEnumsHeader.h"
+#import <UIKit/UIKit.h>
+
 @interface UserModel : NSObject
 
-@property (nonatomic, copy)   NSString *userId;
-@property (nonatomic, copy)   NSString *userName;
-@property (nonatomic, strong) UIImage  *userIcon;
+@property (nonatomic, copy) NSString *userId;
+@property (nonatomic, copy) NSString *userName;
+@property (nonatomic, copy) NSString *userIconUrl;          // 用户头像地址
+@property (nonatomic, strong) UIImage *userIconImage;       // 用户头像
+@property (nonatomic, assign) UserGroupType userGroupType;  // 用户类型;
 
 
 @end

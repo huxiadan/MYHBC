@@ -147,7 +147,7 @@
 {
     _model = model;
     
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.goodsImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     self.priceLabel.text = [NSString stringWithFormat:@"¥ %@", model.goodsPrice];
     self.saleCountLabel.text = [NSString stringWithFormat:@"售%ld",model.saleNumber];
 }

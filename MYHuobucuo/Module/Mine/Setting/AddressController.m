@@ -116,6 +116,10 @@
         [weakSelf.addressListView reloadData];
     };
     
+    cell.defaultBlock = ^() {
+        [weakSelf.addressListView reloadData];
+    };
+    
     return cell;
 }
 

@@ -105,6 +105,7 @@
     UIScrollView *guideView = [[UIScrollView alloc] init];
     [guideView setPagingEnabled:YES];
     [guideView setBounces:NO];
+    [guideView setShowsHorizontalScrollIndicator:NO];
     [guideView setFrame:CGRectMake(0, 0, kAppWidth, kAppHeight)];
     [guideView setContentSize:CGSizeMake(kAppWidth*4, 0)];
     

@@ -141,11 +141,13 @@
 }
 
 #pragma mark - button click
+// 发表评价
 - (void)sendReviewClick:(UIButton *)sender
 {
     
 }
 
+// 匿名发表
 - (void)anonymityButtonClick:(UIButton *)sender
 {
     sender.selected = !sender.isSelected;

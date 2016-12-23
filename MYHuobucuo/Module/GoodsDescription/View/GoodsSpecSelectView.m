@@ -66,7 +66,7 @@
     [imageView.layer setBorderWidth:1.5f];
     [imageView.layer setCornerRadius:fScreen(10)];
     [imageView.layer setMasksToBounds:YES];
-    [imageView setImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [imageView setImage:[UIImage imageNamed:@"img_load_square"]];
     [self addSubview:imageView];
     [imageView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.top.equalTo(self).offset(fScreen(382));

@@ -177,7 +177,7 @@
 {
     _model = model;
     
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.goodsImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     [self adjustNameLabelWithText:model.goodsName];
     [self.goodsPriceLabel setText:[NSString stringWithFormat:@"￥%@", model.goodsPrice]];
     self.isEdit = model.isEdit;

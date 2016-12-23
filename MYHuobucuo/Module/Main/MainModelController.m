@@ -183,7 +183,7 @@
         CGFloat picHeight = fScreen(450 - 72);
         CGRect picFrame = CGRectMake(0, -picHeight, kAppWidth, picHeight);
         
-        self.picView = [SDCycleScrollView cycleScrollViewWithFrame:picFrame delegate:self placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+        self.picView = [SDCycleScrollView cycleScrollViewWithFrame:picFrame delegate:self placeholderImage:[UIImage imageNamed:@"img_load_rect"]];
         NSArray *picArray = @[@"http://pic.58pic.com/58pic/17/37/33/29A58PICGX5_1024.jpg", @"http://pic.90sjimg.com/back_pic/00/04/27/49/d729357f0fdf8eaec3433cb495949ede.jpg", @"http://pic2.ooopic.com/12/80/79/89bOOOPICd2_1024.jpg"];
         self.picView.imageURLStringsGroup = picArray;
         

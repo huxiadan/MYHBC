@@ -69,7 +69,7 @@
             [button setTitle:title forState:UIControlStateNormal];
             [button setFrame:CGRectMake(x,
                                         (self.frame.size.height - size.height)/2,
-                                        size.width, size.height)];
+                                        size.width , size.height)];
             
             button.tag     = index;
             

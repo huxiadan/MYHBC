@@ -17,9 +17,11 @@
 #import "AddressController.h"
 #import "CollectionGoodsController.h"
 #import "CollectionShopController.h"
+#import "UserInfoViewController.h"
 
 #import "NetworkRequest.h"
 #import <Masonry.h>
+#import <UIImageView+WebCache.h>
 
 
 #define MineOtherButtonTag 1000
@@ -51,6 +53,13 @@
     [self showTabBar];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self setInitShowUserInfo];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -58,9 +67,49 @@
 
     [self initUI];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userIconUpdate) name:kUserHeaderIconChange object:nil];
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - Private
+// 设置用户信息
+- (void)setInitShowUserInfo
+{
+    // 登录/未登录 数据显示处理
+    if (![HDUserDefaults objectForKey:cUserid]) {
+        [self.userIconImageView setImage:[UIImage imageNamed:@"组-31"]];
+        [self.userNameLabel setText:@"登录/注册"];
+        [self.collGoodsButton setNumber:@"0"];
+        [self.collStoreButton setNumber:@"0"];
+    }
+    else {
+        // 头像
+        [self.userIconImageView sd_setImageWithURL:[NSURL URLWithString:[HDUserDefaults objectForKey:cUserIcon]] placeholderImage:[UIImage imageNamed:@"组-31"]];
+        
+        // 用户名
+        NSString *userName = [HDUserDefaults objectForKey:cUserName];
+        if (userName.length == 0) {
+            userName = [NSString stringWithFormat:@"用户%@", [HDUserDefaults objectForKey:cUserid]];
+        }
+        [self.userNameLabel setText:userName];
+        
+        // 钱包
+        NSString *walletMoney = @"10000.0"; //[HDUserDefaults objectForKey:cUserWalletMoney];
+        if (walletMoney) {
+            [self.walletMoneyLabel setText:walletMoney];
+            CGSize textSize = [walletMoney sizeForFontsize:fScreen(24)];
+            [self.walletMoneyLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+                make.width.mas_equalTo(textSize.width + 4);
+            }];
+            [self.walletMoneyLabel layoutIfNeeded];
+        }
+    }
+}
+
 - (void)initUI
 {
     self.automaticallyAdjustsScrollViewInsets = false;
@@ -89,28 +138,8 @@
         make.top.equalTo(self.userOrderView.mas_bottom).offset(fScreen(20));
         make.bottom.equalTo(self.view.mas_bottom);
     }];
-    
-    
-    // 登录/未登录 数据显示处理
-    if (![HDUserDefaults objectForKey:cUserid]) {
-        [self.userIconImageView setImage:[UIImage imageNamed:@"组-31"]];
-        [self.userNameLabel setText:@"登录/注册"];
-        [self.collGoodsButton setNumber:@"0"];
-        [self.collStoreButton setNumber:@"0"];
-    }
-    else {
-        [self.userIconImageView setImage:[UIImage imageNamed:@"userIcon"]];
-        [self.userNameLabel setText:[HDUserDefaults objectForKey:cUserName]];
-        NSString *walletMoney = @"10000.0"; //[HDUserDefaults objectForKey:cUserWalletMoney];
-        if (walletMoney) {
-            [self.walletMoneyLabel setText:walletMoney];
-            CGSize textSize = [walletMoney sizeForFontsize:fScreen(24)];
-            [self.walletMoneyLabel mas_updateConstraints:^(MASConstraintMaker *make) {
-                make.width.mas_equalTo(textSize.width + 4);
-            }];
-            [self.walletMoneyLabel layoutIfNeeded];
-        }
-    }
+
+    [self setInitShowUserInfo];
 }
 
 - (UIView *)createViewWithTitle:(NSString *)title subTitle:(NSString *)subTitle index:(NSInteger)index
@@ -197,8 +226,18 @@
     else if ([title isEqualToString:@"我的收货地址"]) {
         [imageView setImage:[UIImage imageNamed:@"组-18"]];
     }
+    else if ([title isEqualToString:@"帮助中心"]) {
+        [imageView setImage:[UIImage imageNamed:@"icon_help"]];
+    }
+    
     
     return contentView;
+}
+
+// 更新头像/名称
+- (void)userIconUpdate
+{
+    [self.userIconImageView sd_setImageWithURL:[NSURL URLWithString:[HDUserDefaults objectForKey:cUserIcon]]];
 }
 
 #pragma mark - Button click
@@ -214,7 +253,8 @@
     // 如果登录进入用户信息界面
     // 未登录 进入登录界面
     if ([HDUserDefaults objectForKey:cUserid]) {
-        
+        UserInfoViewController *userInfoVC = [[UserInfoViewController alloc] init];
+        [self.navigationController pushViewController:userInfoVC animated:YES];
     }
     else {
         LoginViewController *loginViewController = [[LoginViewController alloc] init];
@@ -293,6 +333,11 @@
             [self.navigationController pushViewController:addrController animated:YES];
         }
             break;
+        case 2:
+        {
+            // 帮助中心
+            
+        }
             
         default:
             break;
@@ -330,6 +375,13 @@
         [addressView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.right.height.equalTo(walletView);
             make.top.equalTo(walletView.mas_bottom);
+        }];
+        
+        UIView *helpView = [self createViewWithTitle:@"帮助中心" subTitle:@"" index:2];
+        [_userOtherView addSubview:helpView];
+        [helpView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.height.equalTo(addressView);
+            make.top.equalTo(addressView.mas_bottom);
         }];
     }
     return _userOtherView;

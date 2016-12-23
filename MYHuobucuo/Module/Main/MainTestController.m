@@ -13,6 +13,7 @@
 #import "GroupBuyController.h"
 #import "GroupbuyOrderController.h"
 #import "StoreViewController.h"
+#import "NetworkRequest.h"
 
 @interface MainTestController ()
 
@@ -24,6 +25,24 @@
     [super viewDidLoad];
 
     [self initUI];
+    
+    [NetworkManager testAPI:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@", error.localizedDescription);
+        }
+        else {
+            DLog(@"%@", jsonData);
+        }
+    }];
+    
+//    [NetworkManager getShoppingCarInfo:^(id jsonData, NSError *error) {
+//        if (error) {
+//            DLog(@"%@", error.localizedDescription);
+//        }
+//        else {
+//            DLog(@"%@", jsonData);
+//        }
+//    }];
 }
 
 - (void)didReceiveMemoryWarning {

@@ -448,6 +448,7 @@
     ShareView *shareView = [[ShareView alloc] init];
     [self.view addSubview:shareView];
     shareView.shareModel = self.orderDetailModel.shareModel;
+    shareView.currNaviController = self.navigationController;
 }
 
 @end

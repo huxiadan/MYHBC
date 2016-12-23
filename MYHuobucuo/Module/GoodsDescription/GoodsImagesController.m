@@ -63,7 +63,7 @@
             [self.imageListView addSubview:imageView];
             
             __weak typeof(self) weakSelf = self;
-            [imageView sd_setImageWithURL:[NSURL URLWithString:urlString] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+            [imageView sd_setImageWithURL:[NSURL URLWithString:urlString] placeholderImage:[UIImage imageNamed:@"img_load_square"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
                 
                 if (image) {
                     if (image.size.width > 0 && image.size.height > 0) {

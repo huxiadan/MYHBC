@@ -24,10 +24,10 @@
 #import "UIView+HD.h"
 #import "HDColor.h"
 
-#import "MYImageNameHeader.h"
 #import "MYCommonHeader.h"
 #import "UserManager.h"
 #import "MYEnumsHeader.h"
+#import "MYSingleTon.h"
 
 #endif /* HuobucuoPrefixHeader_pch */
 

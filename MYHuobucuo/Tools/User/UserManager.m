@@ -31,6 +31,14 @@ SingletonM(UserManager)
         [HDUserDefaults setObject:nil forKey:cUserid];
         [HDUserDefaults setObject:nil forKey:cUserName];
         [HDUserDefaults setObject:nil forKey:cUserIcon];
+        [HDUserDefaults setObject:nil forKey:cUserSex];
+        [HDUserDefaults setObject:nil forKey:cUserGroupType];
+        [HDUserDefaults setObject:nil forKey:cUserPhoneNumber];
+        [HDUserDefaults setObject:nil forKey:cUserWechat];
+        [HDUserDefaults setObject:nil forKey:cUserQQ];
+        [HDUserDefaults setObject:@"0" forKey:cUserCollectionGoodsNumber];
+        [HDUserDefaults setObject:@"0" forKey:cUserCollectionStoreNumber];
+        [HDUserDefaults setObject:@"0" forKey:cUserWalletMoney];
     }
 }
 
@@ -42,7 +50,8 @@ SingletonM(UserManager)
             _user = [[UserModel alloc] init];
             _user.userId = [NSString stringWithFormat:@"%@",obj];
             _user.userName = [HDUserDefaults objectForKey:cUserName];
-            _user.userIcon = [HDUserDefaults objectForKey:cUserIcon];
+            _user.userIconUrl = [HDUserDefaults objectForKey:cUserIcon];
+            _user.userGroupType = (UserGroupType)[[HDUserDefaults objectForKey:cUserGroupType] integerValue];
         }
         else {
             _user = nil;

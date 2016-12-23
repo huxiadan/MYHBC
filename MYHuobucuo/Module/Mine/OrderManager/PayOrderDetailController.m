@@ -15,6 +15,7 @@
 #import "OrderDetailModel.h"
 #import "PayViewController.h"
 #import "GoodsViewController.h"
+#import "AddressChooseController.h"
 
 @interface PayOrderDetailController () <UITableViewDataSource, UITableViewDelegate>
 
@@ -22,6 +23,9 @@
 
 @property (nonatomic, strong) UITableView *orderListView;                   // 订单列表
 @property (nonatomic, strong) UIView *addressView;                          // 表头部的地址
+@property (nonatomic, strong) UILabel *nameLabel;
+@property (nonatomic, strong) UILabel *phoneLabel;
+@property (nonatomic, strong) HDLabel *addressLabel;
 @property (nonatomic, strong) UIView *orderFooterView;                      // 表底部的留言等
 @property (nonatomic, strong) UIView *bottomPayView;                        // 底部支付
 @property (nonatomic, strong) NSArray<OrderShopModel *> *shopModelArray;    // 数据源
@@ -37,6 +41,40 @@
 @end
 
 @implementation PayOrderDetailController
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    if ([MYSingleTon sharedMYSingleTon].isNeedUpdateAddress) {
+        AddressModel *addrModel = [MYSingleTon sharedMYSingleTon].currAdressModel;
+        [self.nameLabel setText:addrModel.receivePersonName];
+        [self.phoneLabel setText:addrModel.phoneNumber];
+        NSString *addrText = [NSString stringWithFormat:@"%@%@%@%@", addrModel.province, addrModel.city, addrModel.area, addrModel.address];
+        
+        NSAttributedString *addrString = [NSAttributedString getAttributeString:addrText lineSpacing:fScreen(13)];
+        NSMutableAttributedString *addrString2 = [[NSMutableAttributedString alloc] initWithAttributedString:addrString];
+        NSDictionary *fontAttr = @{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(24)]};
+        [addrString2 addAttributes:fontAttr range:NSMakeRange(0, addrString.length)];
+        
+        [self.addressLabel setAttributedText:addrString2];
+
+        CGFloat addrLabelHeight = self.addressLabel.textHeight;
+        BOOL isOneLine = (addrLabelHeight - fScreen(13)) == [@"高度" sizeForFontsize:fScreen(24)].height;
+        
+        CGFloat addrHeight = 0;
+        
+        if (isOneLine) {
+            [self.addressLabel setText:self.addressString];
+            addrHeight = [@"高度" sizeForFontsize:fScreen(24)].height;
+        }
+        else {
+            addrHeight = addrLabelHeight + fScreen(16/2);
+        }
+        
+        [MYSingleTon sharedMYSingleTon].isNeedUpdateAddress = NO;
+    }
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -336,6 +374,7 @@
         make.height.mas_equalTo(fScreen(28));
         make.width.mas_equalTo(fScreen(340));
     }];
+    self.nameLabel = nameLabel;
     
     // 电话
     UILabel *phoneLabel = [[UILabel alloc] init];
@@ -349,6 +388,7 @@
         make.top.height.equalTo(nameLabel);
         make.left.equalTo(nameLabel.mas_right).offset(fScreen(20));
     }];
+    self.phoneLabel = phoneLabel;
     
     self.addrHeight += fScreen(30 + 28);
     
@@ -387,6 +427,8 @@
         make.height.mas_equalTo(addrHeight);
     }];
     
+    self.addressLabel = addrLabel;
+    
     self.addrHeight += fScreen(18) + addrHeight;
     
     // 说明
@@ -405,8 +447,8 @@
     [changeAddrButton addTarget:self action:@selector(changeAddrButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     [addrView addSubview:changeAddrButton];
     [changeAddrButton mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.top.bottom.equalTo(addrView);
-        make.width.mas_equalTo(fScreen(200));
+        make.right.left.top.bottom.equalTo(addrView);
+//        make.width.mas_equalTo(fScreen(200));
     }];
     
     self.addrHeight += fScreen(20 + 24 + 30 + 6);
@@ -481,13 +523,48 @@
 #pragma mark - button click
 - (void)changeAddrButtonClick:(UIButton *)sender
 {
-    
+    AddressChooseController *addrVC = [[AddressChooseController alloc] init];
+    [self.navigationController pushViewController:addrVC animated:YES];
 }
 
 - (void)buyButtonClick:(UIButton *)sender
 {
     PayViewController *payVC = [[PayViewController alloc] initWithOrderNo:@"8787737989384839" payMoney:@"322.90"];
     [self.navigationController pushViewController:payVC animated:YES];
+}
+
+// 通知方法
+- (void)addressDidChange:(NSArray *)infoArray
+{
+    [self.nameLabel setText:infoArray[0]];
+    
+    [self.phoneLabel setText:infoArray[1]];
+    
+    [self.addressLabel setText:infoArray[2]];
+    
+    NSAttributedString *addrString = [NSAttributedString getAttributeString:self.addressString lineSpacing:fScreen(13)];
+    NSMutableAttributedString *addrString2 = [[NSMutableAttributedString alloc] initWithAttributedString:addrString];
+    NSDictionary *fontAttr = @{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(24)]};
+    [addrString2 addAttributes:fontAttr range:NSMakeRange(0, addrString.length)];
+    
+    [self.addressLabel setAttributedText:addrString2];
+    
+    CGFloat addrLabelHeight = self.addressLabel.textHeight;
+    BOOL isOneLine = (addrLabelHeight - fScreen(13)) == [@"高度" sizeForFontsize:fScreen(24)].height;
+    
+    CGFloat addrHeight = 0;
+    
+    if (isOneLine) {
+        [self.addressLabel setText:self.addressString];
+        addrHeight = [@"高度" sizeForFontsize:fScreen(24)].height;
+    }
+    else {
+        addrHeight = addrLabelHeight + fScreen(16/2);
+    }
+
+    [self.addressLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.height.mas_equalTo(addrHeight);
+    }];
 }
 
 @end

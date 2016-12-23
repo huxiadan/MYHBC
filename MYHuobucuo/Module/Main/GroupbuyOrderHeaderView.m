@@ -669,7 +669,7 @@
         _goodsInfoView = infoView;
         
         UIImageView *goodsImageView = [[UIImageView alloc] init];
-        [goodsImageView sd_setImageWithURL:[NSURL URLWithString:self.model.goodsImageUrl] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+        [goodsImageView sd_setImageWithURL:[NSURL URLWithString:self.model.goodsImageUrl] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
         [infoView addSubview:goodsImageView];
         [goodsImageView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.top.equalTo(infoView).offset(fScreen(20));

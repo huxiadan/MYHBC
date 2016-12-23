@@ -18,5 +18,6 @@
 - (instancetype)initWithCommissionText:(NSString *)commissionText;
 
 @property (nonatomic, strong) ShareModel *shareModel;
+@property (nonatomic, strong) UINavigationController *currNaviController;
 
 @end

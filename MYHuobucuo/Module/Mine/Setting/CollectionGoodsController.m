@@ -252,6 +252,7 @@
         ShareView *shareView = [[ShareView alloc] init];
         [weakSelf.view addSubview:shareView];
         shareView.shareModel = shareModel;
+        shareView.currNaviController = weakSelf.navigationController;
     };
     
     return cell;

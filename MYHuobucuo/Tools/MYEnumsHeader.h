@@ -73,11 +73,13 @@ typedef NS_ENUM(NSInteger) {
 
 #pragma mark 订单店铺状态类型
 typedef NS_ENUM(NSInteger) {
-    OrderShopState_WaitPay = 1,     // 待付款
+    OrderShopState_WaitPay = 1,     // 待付款/待成团
     OrderShopState_WaitSend,        // 待发货
     OrderShopState_WaitReceive,     // 待收货
     OrderShopState_WaitEvaluate,    // 待评价
     OrderShopState_NoShow,          // 不显示
+    OrderShopState_Over_Success,    // 已完成(拼团成功)
+    OrderShopState_Over_Fail,       // 已完成(拼团失败)
 }OrderShopState;
 
 #pragma mark 支付类型
@@ -96,8 +98,18 @@ typedef NS_ENUM(NSInteger) {
     ShareType_link,          // 链接
 }ShareType;
 
+#pragma mark 验证码类型
+typedef NS_ENUM(NSInteger) {
+    MessageCheckCodeType_Register,      // 注册验证码
+    MessageCheckCodeType_ChangePwd,     // 修改密码验证码
+}MessageCheckCodeType;
 
-
+#pragma mark 用户类型
+typedef NS_ENUM(NSInteger) {
+    UserGroupType_Normal,       // 普通用户
+    UserGroupType_Distributor,  // 分销商用户
+    UserGroupType_Provider      // 供应商用户
+}UserGroupType;
 
 
 

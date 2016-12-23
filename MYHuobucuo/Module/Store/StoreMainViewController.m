@@ -254,7 +254,7 @@
 - (SDCycleScrollView *)makeBannerView
 {
     CGRect frame = CGRectMake(0, CGRectGetMaxY(self.noticeView.frame) + fScreen(20), kAppWidth, fScreen(435));
-    SDCycleScrollView *banner = [SDCycleScrollView cycleScrollViewWithFrame:frame delegate:self placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    SDCycleScrollView *banner = [SDCycleScrollView cycleScrollViewWithFrame:frame delegate:self placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     
     banner.imageURLStringsGroup = self.shopModel.bannerArray;
     

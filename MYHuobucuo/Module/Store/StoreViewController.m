@@ -17,6 +17,7 @@
 #import "StoreCategoryViewController.h"
 #import "StoreDetailViewController.h"
 #import "SearchViewController.h"
+#import "ShareView.h"
 
 typedef NS_ENUM(NSInteger) {
     ShopMainViewItemTag_Main = 0,       // 首页
@@ -339,7 +340,7 @@ typedef NS_ENUM(NSInteger) {
         make.height.mas_equalTo(fScreen(128));
         make.width.mas_equalTo(fScreen(128));
     }];
-    [iconImageView sd_setImageWithURL:[NSURL URLWithString:self.shopModel.shopIconURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+    [iconImageView sd_setImageWithURL:[NSURL URLWithString:self.shopModel.shopIconURL] placeholderImage:[UIImage imageNamed:@"img_load_square"] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
         if (image) {
             [weakBgImageView setImage:image];
             
@@ -600,7 +601,7 @@ typedef NS_ENUM(NSInteger) {
                 
             }
             // 小于20 的距离
-            else if (offset.y < fScreen(20)) {
+            else if (offset.y <= fScreen(20)) {
                 [self.topItemView setAlpha:0];
                 [self.topView setBackgroundColor:[UIColor colorWithWhite:1 alpha:0]];
                 [self.topContentView setBackgroundColor:[UIColor colorWithRed:238.0/255.0 green:239.0/255.0 blue:239.0/255.0 alpha:0]];
@@ -634,7 +635,7 @@ typedef NS_ENUM(NSInteger) {
                     [self.contentView setScrollEnabled:YES];
                 }
             }
-            else{
+            else{   // 商品/分类 设置不可滚动
                 if (self.currItemTag == ShopMainViewItemTag_Goods) {
                     StoreGoodsViewController *goodsVc = (StoreGoodsViewController *)[self.childViewControllers objectAtIndex:1];
                     [goodsVc setCanNotScroll];
@@ -646,7 +647,6 @@ typedef NS_ENUM(NSInteger) {
             }
         }
     }
-
 }
 
 
@@ -657,9 +657,16 @@ typedef NS_ENUM(NSInteger) {
     [self.navigationController pushViewController:searchVC animated:YES];
 }
 
+// 分享
 - (void)shareButtonClick:(UIButton *)sender
-{}
+{
+    ShareView *share = [[ShareView alloc] init];
+    share.shareModel = self.shopModel.shareModel;
+    share.currNaviController = self.navigationController;
+    [self.view addSubview:share];
+}
 
+// 收藏
 - (void)collectButtonClick:(UIButton *)sender
 {
     sender.selected = !sender.isSelected;

@@ -9,22 +9,31 @@
 #import "NetworkRequest.h"
 
 #import "MYProgressHUD.h"
+#import "HBtools.h"
 
 #import <AFNetworking.h>
 
 // 正式网
-#define kNetworkRequestHeader @""
+//#define kNetworkRequestHeader @""
 
 // 测试网
-//#define kNetworkRequestHeader @"test.huobucuo.com"
+#define kNetworkRequestHeader @"http://test.huobucuo.cn/coreapi/"
 
 #define kNetworkTimeout 30.f
+#define kParamKeySign @"sign"
+#define kParamKeyTimestamp @"timestamp"
+#define kParamKeyCustomerId @"customerId"
+
+#define kRequestTime [[NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]] integerValue]
+
 
 @interface NetworkRequest ()
 
 @property (nonatomic, strong) AFHTTPSessionManager *httpSessionManager;
 
 @property (nonatomic, strong) AFNetworkReachabilityManager *reachability;
+
+@property (nonatomic, copy) NSComparator sortCompara;
 
 @end
 
@@ -40,8 +49,94 @@
     return sharedInstance;
 }
 
-- (void)userLoginWithUserName:(NSString *)userName password:(NSString *)password finishBlock:(FinishBlock)finishBlock
-{}
+- (void)testAPI:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:@{@"orderType":@1,
+                                   @"page":@1,
+                                   @"size":@10,
+                                   kParamKeyCustomerId:@"",
+                                   kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                                  }];
+    
+    NSString *string1 = [self paramsToMD5:postDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    [postDict setObjectSafe:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=order&c=reader&a=listorder", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+#pragma mark
+#pragma mark - User
+- (void)getCheckCodeWithPhoneNumber:(NSString *)phoneNumber type:(MessageCheckCodeType)type finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"telephone":phoneNumber,
+                               @"type":[NSNumber numberWithInteger:type],
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]};
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObjectSafe:signString forKey:kParamKeySign];
+    [postDict setObjectSafe:@"" forKey:@"ip"];
+    [postDict setObjectSafe:@"" forKey:@"cfrom"];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=dev&c=sms&a=sendmsg", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+- (void)userLoginWithUserName:(NSString *)userName password:(NSString *)password openId:(NSString *)openId unionId:(NSString *)unionId finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"telephone":userName,
+                               @"password":password,
+                               @"openid":openId,
+                               @"unionid":unionId,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObjectSafe:signString forKey:kParamKeySign];
+    [postDict setObjectSafe:@"" forKey:@"ip"];
+    [postDict setObjectSafe:@"" forKey:@"cfrom"];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=customer&a=cklogin", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+- (void)userRegisterWithUserName:(NSString *)userName password:(NSString *)password openId:(NSString *)openId unionId:(NSString *)unionId finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"openid":openId,
+                              @"unionid":unionId,
+                              @"telephone":userName,
+                              @"password":password,
+                              kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                              };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObjectSafe:@"" forKey:@"ip"];
+    [postDict setObjectSafe:@"" forKey:@"cfrom"];
+    [postDict setObjectSafe:@"" forKey:@"referid"];
+    [postDict setObjectSafe:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=customer&a=register", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
 
 #pragma mark 
 #pragma mark - ShoppingCar
@@ -59,8 +154,6 @@
                                 paDic,@"pagination",
                                 nil];
     NSString *urlStr = [NSString stringWithFormat:@"http://www.1233go.com/ECMobile/?url=/shop/list"];
-    
-//    [self netRequestWithUrl:urlStr requestTag:requestTag postDictionary:dictionary finishBlock:finishBlock];
     
     [self networkWithUrl:urlStr postParametersDict:dictionary finishBlock:finishBlock];
 }
@@ -82,16 +175,49 @@
 
 #pragma mark
 #pragma mark - Private
-- (void)networkWithUrl:(NSString *)urlString postParametersDict:(NSDictionary *)parametersDict finishBlock:(FinishBlock)finishBlock
+
+- (NSString *)makeSignString:(NSString *)md5String
+{
+    return [[[HBtools sharedInstance] MD5forString:[NSString stringWithFormat:@"uu#m!aap%@",md5String]] uppercaseString];
+}
+
+// 参数排序处理成字符串并进行 MD5加密
+- (NSString *)paramsToMD5:(NSDictionary *)paramsDict
+{
+    // 排序
+    NSArray *sortArray = paramsDict.allKeys;
+    NSArray *sortResultArray = [sortArray sortedArrayUsingComparator:self.sortCompara];
+    
+    // 拼接
+    NSInteger count = sortResultArray.count;
+    NSMutableString *tmpReturnString = [[NSMutableString alloc] init];
+    for (NSInteger index = 0; index < count; index++) {
+        NSString *key = [sortResultArray objectAtIndex:index];
+        
+        NSString *value = [NSString stringWithFormat:@"%@", [paramsDict objectForKey:key]];
+        
+        NSString *appendString = [NSString stringWithFormat:@"%@=%@&", key, value];
+        
+        [tmpReturnString appendString:appendString];
+    }
+    
+    // 加密
+    NSString *returnString = [[HBtools sharedInstance] MD5forString:[tmpReturnString substringToIndex:tmpReturnString.length - 1]];     // 去除最后的&
+    
+    return returnString;
+}
+
+
+- (void)networkWithUrl:(NSString *)urlString postParametersDict:(id)parameters finishBlock:(FinishBlock)finishBlock
 {
     // 判断网络环境
-//    if (![self isNetworkCanUse]) {
-//        [MYProgressHUD showAlertWithMessage:@"亲，没有网络哦~"];
-//        return;
-//    }
+    if (![self isNetworkCanUse]) {
+        [MYProgressHUD showAlertWithMessage:@"亲，没有网络哦~"];
+        return;
+    }
     
     // 请求数据
-    [self.httpSessionManager POST:urlString parameters:parametersDict progress:^(NSProgress * _Nonnull uploadProgress) {
+    [self.httpSessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         if (finishBlock) {
@@ -104,20 +230,7 @@
     }];
     
     
-    // 测试
-//    NSURL *URL = [NSURL URLWithString:@"http://www.jsonlint.com/"];
-//    
-//    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
-//    manager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/html", nil];
-//    
-//    [manager POST:URL.absoluteString parameters:nil progress:^(NSProgress * _Nonnull uploadProgress) {
-//        
-//    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
-//        NSLog(@"%@",responseObject);
-//    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
-//        NSLog(@"%@",error.localizedDescription);
-//    }];
-//    
+
  
 }
 
@@ -158,6 +271,20 @@
 
 
 #pragma mark - Getter
+- (NSComparator)sortCompara
+{
+    if (!_sortCompara) {
+        NSStringCompareOptions comparisonOptions = NSCaseInsensitiveSearch|NSNumericSearch|
+        NSWidthInsensitiveSearch|NSForcedOrderingSearch;
+        NSComparator sort = ^(NSString *obj1,NSString *obj2){
+            NSRange range = NSMakeRange(0,obj1.length);
+            return [obj1 compare:obj2 options:comparisonOptions range:range];
+        };
+        _sortCompara = sort;
+    }
+    return _sortCompara;
+}
+
 - (AFHTTPSessionManager *)httpSessionManager
 {
     if (!_httpSessionManager) {
@@ -167,6 +294,7 @@
         
         AFJSONResponseSerializer *serializer = [AFJSONResponseSerializer serializer];
         serializer.readingOptions = NSJSONReadingAllowFragments;
+        _httpSessionManager.requestSerializer = [AFHTTPRequestSerializer serializer];
         _httpSessionManager.responseSerializer = serializer;
         _httpSessionManager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"text/html", nil];
     }

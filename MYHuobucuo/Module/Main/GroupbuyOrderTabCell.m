@@ -106,7 +106,7 @@
         [self.userIcon setImage:[UIImage imageNamed:@"img_boy"]];
     }
     else {
-        [self.userIcon sd_setImageWithURL:[NSURL URLWithString:model.userIconUrl] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+        [self.userIcon sd_setImageWithURL:[NSURL URLWithString:model.userIconUrl] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     }
     
     [self.userNameLabel setText:model.userName];
@@ -242,7 +242,7 @@
         [self.userIcon setImage:[UIImage imageNamed:@"img_boy"]];
     }
     else {
-        [self.userIcon sd_setImageWithURL:[NSURL URLWithString:model.userIconUrl] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+        [self.userIcon sd_setImageWithURL:[NSURL URLWithString:model.userIconUrl] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     }
     
     [self.userNameLabel setText:model.userName];

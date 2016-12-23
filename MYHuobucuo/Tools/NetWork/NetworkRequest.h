@@ -17,6 +17,9 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 // 单例
 + (NetworkRequest *)sharedNetworkRequest;
 
+// 测试 api
+- (void)testAPI:(FinishBlock)finishBlock;
+
 #pragma mark
 #pragma mark - ShoppingCar
 // 获取购物车数据
@@ -38,11 +41,14 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 
 #pragma mark
 #pragma mark - User
+// 获取验证码
+- (void)getCheckCodeWithPhoneNumber:(NSString *)phoneNumber type:(MessageCheckCodeType)type finishBlock:(FinishBlock)finishBlock;
+
 // 登录
-- (void)userLoginWithUserName:(NSString *)userName password:(NSString *)password finishBlock:(FinishBlock)finishBlock;
+- (void)userLoginWithUserName:(NSString *)userName password:(NSString *)password openId:(NSString *)openId unionId:(NSString *)unionId finishBlock:(FinishBlock)finishBlock;
 
 // 注册
-- (void)userRegisterWithUserName:(NSString *)userName password:(NSString *)password checkCode:(NSString *)checkCode finishBlock:(FinishBlock)finishBlock;
+- (void)userRegisterWithUserName:(NSString *)userName password:(NSString *)password openId:(NSString *)openId unionId:(NSString *)unionId finishBlock:(FinishBlock)finishBlock;
 
 
 #pragma mark 

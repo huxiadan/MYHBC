@@ -172,7 +172,7 @@
         
         for (NSInteger index = 0; index < 4; index++) {
             
-            UIImage *placeholderImage = [UIImage imageNamed:@"placeholder.JPG"];
+            UIImage *placeholderImage = [UIImage imageNamed:@"img_load_square"];
             NSString *urlString;
             if (index > photoCount - 1) {
                 // 超过用户的照片数量

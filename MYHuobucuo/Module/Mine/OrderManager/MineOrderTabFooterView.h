@@ -6,6 +6,10 @@
 //  Copyright © 2016年 hudan. All rights reserved.
 //
 
+/**
+    普通订单列表的 footerView
+ */
+
 #import <UIKit/UIKit.h>
 #import "OrderShopModel.h"
 

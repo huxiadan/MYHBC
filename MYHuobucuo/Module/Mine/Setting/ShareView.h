@@ -16,5 +16,6 @@
 @interface ShareView : UIView
 
 @property (nonatomic, strong) ShareModel *shareModel;
+@property (nonatomic, strong) UINavigationController *currNaviController;   // 用于短信界面跳转
 
 @end

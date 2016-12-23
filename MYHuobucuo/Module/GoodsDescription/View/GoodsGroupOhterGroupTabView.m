@@ -213,7 +213,7 @@ static NSString *cellIdentity = @"GoodsGroupOhterGroupTabCellIdentity";
 {
     _model = model;
     
-    [self.masterIcon sd_setImageWithURL:[NSURL URLWithString:model.userIconUrl] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.masterIcon sd_setImageWithURL:[NSURL URLWithString:model.userIconUrl] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     
     [self.nameLabel setText:model.groupUserName];
     

@@ -102,7 +102,7 @@
     }];
     
     UIImageView *shopIcon = [[UIImageView alloc] init];
-    [shopIcon sd_setImageWithURL:[NSURL URLWithString:self.goodsModel.shopIconUrl] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [shopIcon sd_setImageWithURL:[NSURL URLWithString:self.goodsModel.shopIconUrl] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     [view addSubview:shopIcon];
     [shopIcon mas_makeConstraints:^(MASConstraintMaker *make) {
         make.centerY.equalTo(view.mas_centerY);
@@ -376,7 +376,7 @@
 
 - (void)addCycleView
 {
-    SDCycleScrollView *cycleView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectZero delegate:self placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    SDCycleScrollView *cycleView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectZero delegate:self placeholderImage:[UIImage imageNamed:@"img_load_rect"]];
     NSArray *picArray = @[@"http://pic.58pic.com/58pic/17/37/33/29A58PICGX5_1024.jpg", @"http://pic.90sjimg.com/back_pic/00/04/27/49/d729357f0fdf8eaec3433cb495949ede.jpg", @"http://pic2.ooopic.com/12/80/79/89bOOOPICd2_1024.jpg"];
     cycleView.imageURLStringsGroup = picArray;
     [self addSubview:cycleView];

@@ -120,7 +120,7 @@
     
     [self.goodsNameLabel setText:goodsModel.goodsName];
     
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:goodsModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:goodsModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     
     [self.groupImageView setHidden:goodsModel.groupBuy];
     

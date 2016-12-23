@@ -266,11 +266,13 @@
             ShareView *shareView = [[ShareView alloc] init];
             [self.view addSubview:shareView];
             shareView.shareModel = self.groupOrderModel.shareModel;
+            shareView.currNaviController = self.navigationController;
         }
         else {
             ShareCommissionView *shareView = [[ShareCommissionView alloc] initWithCommissionText:self.groupOrderModel.commissionShareText];
             [self.view addSubview:shareView];
             shareView.shareModel = self.groupOrderModel.shareModel;
+            shareView.currNaviController = self.navigationController;
         }
     }
 }

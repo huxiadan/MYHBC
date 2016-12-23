@@ -23,4 +23,6 @@
 @property (nonatomic, copy) NSString *area;                 // 地区
 @property (nonatomic, copy) NSString *address;              // 详细地址
 
+@property (nonatomic, assign) BOOL isSelect;                // 是否选中(选择地址的时候使用)
+
 @end

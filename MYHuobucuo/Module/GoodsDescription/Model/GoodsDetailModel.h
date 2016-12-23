@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "ShareModel.h"
 
 @class OtherGroupModel;
 
@@ -29,6 +30,7 @@
 @property (nonatomic, copy) NSString *shopName;             // 店铺名
 @property (nonatomic, copy) NSString *shopIconUrl;          // 店铺图标地址
 @property (nonatomic, copy) NSString *shopId;               // 店铺 ID
+@property (nonatomic, strong) ShareModel *shareModel;       // 分享
 
 // 拼团使用
 @property (nonatomic, assign) BOOL isGroup;                 // 是否团购

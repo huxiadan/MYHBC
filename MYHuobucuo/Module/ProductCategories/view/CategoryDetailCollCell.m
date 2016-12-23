@@ -109,7 +109,7 @@
     
     [self.goodsNameLabel setText:goodsModel.goodsName];
     
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:goodsModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:goodsModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     
     NSMutableAttributedString *priceString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥ %@",goodsModel.goodsPrice]];
     [priceString addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(24)]} range:NSMakeRange(0, 1)];

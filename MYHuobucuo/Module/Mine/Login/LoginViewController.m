@@ -20,6 +20,9 @@
 @property (nonatomic, strong) UIButton *loginButton;
 @property (nonatomic, strong) UIButton *registerButton;
 
+@property (nonatomic, copy) NSString *openId;
+@property (nonatomic, copy) NSString *unionId;
+
 @end
 
 @implementation LoginViewController
@@ -242,10 +245,21 @@
     }
     
     // 登录动作
-    [[NetworkRequest sharedNetworkRequest] userLoginWithUserName:self.userNameField.text password:self.passwordField.text finishBlock:^(id jsonData, NSError *error) {
-        if (!error) {
+    [[NetworkRequest sharedNetworkRequest] userLoginWithUserName:self.userNameField.text password:self.passwordField.text openId:self.openId unionId:self.unionId finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@", error.localizedDescription);
+        }
+        else {
             if (jsonData) {
-                
+                NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                NSDictionary *statusDict = jsonDict[@"status"];
+                if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                    [MYProgressHUD showAlertWithMessage:[NSString stringWithFormat:@"%@", statusDict[@"msg"]]];
+                    return ;
+                }
+                else {
+                    
+                }
             }
         }
     }];

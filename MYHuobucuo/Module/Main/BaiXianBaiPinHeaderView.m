@@ -25,7 +25,7 @@
         // 添加轮播图
         CGFloat bannerHeight = fScreen(460);
         
-        SDCycleScrollView *cycleView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectZero delegate:self placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+        SDCycleScrollView *cycleView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectZero delegate:self placeholderImage:[UIImage imageNamed:@"img_load_rect"]];
         [self addSubview:cycleView];
         self.cycleView = cycleView;
         [cycleView setFrame:CGRectMake(0, 0, kAppWidth, bannerHeight)];

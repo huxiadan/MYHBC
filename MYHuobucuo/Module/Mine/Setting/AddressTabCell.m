@@ -169,7 +169,21 @@
 
 - (void)defaultButtonClick:(UIButton *)sender
 {
-    self.defaultButton.selected = !sender.isSelected;
+    self.defaultButton.selected = YES;      // 有且只有一个,所以点击永远是选中
+    
+    self.addrModel.isDefaultAddress = YES;
+    
+    // 更新其他模型为非默认地址
+    NSArray *addrArray = [MYSingleTon sharedMYSingleTon].addressModelArray;
+    for (AddressModel *addrModel in addrArray) {
+        if (addrModel != self.addrModel) {
+            addrModel.isDefaultAddress = NO;
+        }
+    }
+    
+    if (self.defaultBlock) {
+        self.defaultBlock();
+    }
 }
 
 - (void)deleteButtonClick:(UIButton *)sender

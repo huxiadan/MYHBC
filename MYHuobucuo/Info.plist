@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>货不错</string>
+	<string>千县农汇</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -57,6 +57,17 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>帅气的开发人员想要访问你的相机,你好意思拒绝吗?</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>开启定位服务</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>帅气的开发人员想要访问你的相册,你好意思拒绝吗?</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -69,16 +80,5 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>NSCameraUsageDescription</key>
-	<string>帅气的开发人员想要访问你的相机,你好意思拒绝吗?</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>帅气的开发人员想要访问你的相册,你好意思拒绝吗?</string>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>开启定位服务</string>
 </dict>
 </plist>

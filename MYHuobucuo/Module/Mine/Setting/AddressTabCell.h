@@ -13,10 +13,12 @@ static NSString *cellIdentity = @"AddressTabCellIdentity";
 #define kAddressTabCellHeight fScreen(258)
 
 typedef void(^DeleteButtonClickBlock)(AddressModel *model);
+typedef void(^SetDefaultAddrBlock)();
 
 @interface AddressTabCell : UITableViewCell
 
 @property (nonatomic, strong) AddressModel *addrModel;
 @property (nonatomic, copy) DeleteButtonClickBlock deleteBlock;
+@property (nonatomic, copy) SetDefaultAddrBlock defaultBlock;
 
 @end

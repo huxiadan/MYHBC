@@ -57,7 +57,7 @@
 {
     _model = model;
     
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.categoryImageURL] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.categoryImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     [self.goodsNameLabel setText:model.categoryName];
 }
 

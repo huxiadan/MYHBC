@@ -110,7 +110,7 @@
     _model = model;
     
     // 图片
-    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.goodsImageUrl] placeholderImage:[UIImage imageNamed:@"placeholder.JPG"]];
+    [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:model.goodsImageUrl] placeholderImage:[UIImage imageNamed:@"img_load_rect"]];
     
     // 人数
     NSString *countString = [NSString stringWithFormat:@"%ld人团",model.personCount];

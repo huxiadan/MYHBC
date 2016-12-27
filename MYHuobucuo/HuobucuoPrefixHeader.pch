@@ -28,6 +28,7 @@
 #import "UserManager.h"
 #import "MYEnumsHeader.h"
 #import "MYSingleTon.h"
+#import "UserManager.h"
 
 #endif /* HuobucuoPrefixHeader_pch */
 

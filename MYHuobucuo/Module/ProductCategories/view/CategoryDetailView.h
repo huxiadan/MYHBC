@@ -11,17 +11,14 @@
  */
 
 #import <UIKit/UIKit.h>
-#import "GoodsModel.h"
-
-typedef void(^CellClickBlock)(GoodsModel *model);
 
 @interface CategoryDetailView : UICollectionView
+
+@property (nonatomic, strong) NSArray *modelArray;
 
 - (instancetype)initWithFrame:(CGRect)frame
          collectionViewLayout:(UICollectionViewLayout *)layout
                         title:(NSString *)title
                    modelArray:(NSArray *)modelArray;
-
-@property (nonatomic, strong) CellClickBlock cellBlock;
 
 @end

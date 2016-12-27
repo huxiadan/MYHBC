@@ -70,6 +70,8 @@
 #define kAddressDidChangeNoti @"kMYAddressChangeNotification"   // 地址界面选择地址返回上级
 #define kAddressToChangeNoti @"kMYAddressToChangeNoti"          // 去选择地址界面
 #define kUserHeaderIconChange @"kMYUserHeaderIconChange"        // 用户头像变更通知
+#define kUserLoginNoti @"kMYUserLoginNoti"                      // 用户登录通知
+#define kUserLogoutNoti @"kMYUserLogoutNoti"                    // 用户退出通知
 
 
 #endif /* MYCommonHeader_h */

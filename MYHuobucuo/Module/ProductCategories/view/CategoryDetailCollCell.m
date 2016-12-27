@@ -78,11 +78,11 @@
     [marketPrickLabel setTextColor:HexColor(0x999999)];
     [self addSubview:marketPrickLabel];
     [marketPrickLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(priceLabel.mas_right).offset(fScreen(20));
+        make.left.equalTo(priceLabel.mas_right).offset(fScreen(10));
         make.centerY.equalTo(priceLabel.mas_centerY);
         CGSize textSize = [@"高度" sizeForFontsize:fScreen(24)];
         make.height.mas_equalTo(textSize.height);
-        make.right.equalTo(addShopCarButton.mas_left).offset(-fScreen(20));
+        make.right.equalTo(addShopCarButton.mas_left).offset(-fScreen(10));
     }];
     self.goodsMarketLabel = marketPrickLabel;
     
@@ -94,7 +94,6 @@
     [nameLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.mas_left).offset(fScreen(20));
         make.right.equalTo(self.mas_right).offset(-fScreen(20));
-//        make.bottom.equalTo(priceLabel.mas_top).offset(-fScreen(10));
         make.top.equalTo(imageView.mas_bottom).offset(fScreen(10));
         
         CGSize textSize = [@"高度" sizeForFontsize:fScreen(26)];
@@ -111,17 +110,17 @@
     
     [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:goodsModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];
     
-    NSMutableAttributedString *priceString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥ %@",goodsModel.goodsPrice]];
+    NSMutableAttributedString *priceString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@",goodsModel.goodsPrice]];
     [priceString addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(24)]} range:NSMakeRange(0, 1)];
     [priceString addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(32)]} range:NSMakeRange(1, priceString.length - 1)];
     [self.goodsPriceLabel setAttributedText:priceString];
     
-    CGSize textSize = [[NSString stringWithFormat:@"￥ %@",goodsModel.goodsPrice] sizeForFontsize:fScreen(32)];
+    CGSize textSize = [[NSString stringWithFormat:@"￥%@",goodsModel.goodsPrice] sizeForFontsize:fScreen(32)];
     [self.goodsPriceLabel mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.width.mas_equalTo(textSize.width);
+        make.width.mas_equalTo(textSize.width + 2);
     }];
     
-    NSMutableAttributedString *marketPriceString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥ %@",goodsModel.marketPrice]];
+    NSMutableAttributedString *marketPriceString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@",goodsModel.marketPrice]];
     [marketPriceString addAttributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)} range:NSMakeRange(0, marketPriceString.length)];
     [self.goodsMarketLabel setAttributedText:marketPriceString];
     [self.goodsMarketLabel layoutIfNeeded];

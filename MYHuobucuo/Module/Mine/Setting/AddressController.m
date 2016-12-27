@@ -11,6 +11,7 @@
 #import "AddressTabFooterView.h"
 #import "AddressEditController.h"
 #import "MYSingleTon.h"
+#import "NetworkRequest.h"
 #import <Masonry.h>
 
 @interface AddressController () <UITableViewDataSource, UITableViewDelegate>
@@ -55,22 +56,58 @@
 
 - (void)requestData
 {
+    __weak typeof(self) weakSelf = self;
+    
+    [NetworkManager getAddressListWithBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            
+            NSDictionary *statusDict = [jsonDict objectForKey:@"status"];
+            
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                NSArray *dataArray = jsonDict[@"data"];
+                
+                NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity:dataArray.count];
+                
+                for (NSDictionary *dict in dataArray) {
+                    
+                    AddressModel *addrModel = [[AddressModel alloc] init];
+                    
+                    [addrModel setValueWithDict:dict];
+                    
+                    [tmpArray addObjectSafe:addrModel];
+                }
+                
+                [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
+                
+                [weakSelf.addressListView reloadData];
+            }
+        }
+    }];
+    
     // 模拟数据
-    NSMutableArray *tmpArray = [NSMutableArray array];
-    for (NSInteger index = 0; index < 5; index++) {
-        AddressModel *model = [[AddressModel alloc] init];
-        
-        model.receivePersonName = [NSString stringWithFormat:@"厦门吴彦祖-%ld",index];
-        model.phoneNumber = @"18695696529";
-        model.province = @"福建省";
-        model.city = @"厦门市";
-        model.area = @"思明区";
-        model.address = @"莲前街道软件园二期望海路63号";
-        model.isDefaultAddress = index == 0 ? YES : NO;
-        
-        [tmpArray addObject:model];
-    }
-    [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
+//    NSMutableArray *tmpArray = [NSMutableArray array];
+//    for (NSInteger index = 0; index < 5; index++) {
+//        AddressModel *model = [[AddressModel alloc] init];
+//        
+//        model.receivePersonName = [NSString stringWithFormat:@"厦门吴彦祖-%ld",index];
+//        model.phoneNumber = @"18695696529";
+//        model.province = @"福建省";
+//        model.city = @"厦门市";
+//        model.area = @"思明区";
+//        model.address = @"莲前街道软件园二期望海路63号";
+//        model.isDefaultAddress = index == 0 ? YES : NO;
+//        
+//        [tmpArray addObject:model];
+//    }
+//    [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
 }
 
 - (void)didReceiveMemoryWarning {

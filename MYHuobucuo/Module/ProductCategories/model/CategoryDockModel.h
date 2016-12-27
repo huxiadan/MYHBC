@@ -11,6 +11,8 @@
 @interface CategoryDockModel : NSObject
 
 @property (nonatomic, copy) NSString *categoryName;
-@property (nonatomic, strong) NSDictionary *categorySubDict;    // 子分类
+@property (nonatomic, copy) NSString *dockId;
+
+- (void)setValueWithDict:(NSDictionary *)dict;
 
 @end

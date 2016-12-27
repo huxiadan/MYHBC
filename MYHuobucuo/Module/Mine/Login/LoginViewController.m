@@ -245,6 +245,14 @@
     }
     
     // 登录动作
+    if (self.openId == nil) {
+        self.openId = @"";
+    }
+    if (self.unionId == nil) {
+        self.unionId = @"";
+    }
+    
+    __weak typeof(self) weakSekf = self;
     [[NetworkRequest sharedNetworkRequest] userLoginWithUserName:self.userNameField.text password:self.passwordField.text openId:self.openId unionId:self.unionId finishBlock:^(id jsonData, NSError *error) {
         if (error) {
             DLog(@"%@", error.localizedDescription);
@@ -258,7 +266,15 @@
                     return ;
                 }
                 else {
+                    NSDictionary *dataDict = jsonData[@"data"];
                     
+                    [AppUserManager userLogin];
+                    [AppUserManager.user setValueWithDict:dataDict];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:kUserLoginNoti object:nil];
+                    
+                    [MYProgressHUD showAlertWithMessage:@"登录成功~"];
+                    
+                    [weakSekf.navigationController popToRootViewControllerAnimated:YES];
                 }
             }
         }

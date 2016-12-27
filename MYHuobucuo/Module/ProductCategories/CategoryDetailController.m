@@ -12,10 +12,15 @@
 #import "CategoryDetailView.h"
 #import "SearchViewController.h"
 #import "GoodsViewController.h"
+#import "CategoryDetailModel.h"
+//#import "NetworkRequest.h"
+#import "CategoryDetailPageController.h"
 
 @interface CategoryDetailController ()
 
 @property (nonatomic, copy) NSString *controllerTitle;
+@property (nonatomic, strong) NSArray *categoryArray;
+@property (nonatomic, assign) NSInteger initIndex;
 
 @property (nonatomic, strong) UIView *titleView;
 @property (nonatomic, strong) HDPageViewController *pageController;
@@ -24,14 +29,7 @@
 
 @implementation CategoryDetailController
 
-- (instancetype)initWithTitle:(NSString *)controllerTitle
-{
-    if (self = [super init]) {
-        self.controllerTitle = controllerTitle;
-    }
-    return self;
-}
-
+#pragma mark - life cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
 
@@ -45,30 +43,37 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (instancetype)initWithTitle:(NSString *)controllerTitle categoryArray:(NSArray<CategoryDetailModel *> *)categoryArray index:(NSInteger)index
+{
+    if (self = [super init]) {
+        self.controllerTitle = controllerTitle;
+        self.categoryArray = categoryArray;
+        self.initIndex = index;
+    }
+    return self;
+}
+
 - (void)requestData
 {
-    NSArray *titleArray = @[@"杨桃", @"柚子", @"苹果", @"西红柿", @"哈密瓜", @"香蕉", @"芭乐", @"芒果"];
-    
-    NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity:14];
-    for (NSInteger index = 0; index < 14; index++) {
-        GoodsModel *model = [[GoodsModel alloc] init];
-        model.goodsName = @"平和红心蜜柚  ";//平和红心蜜柚5斤两颗装adfedfdffff
-        model.goodsPrice = @"22.8";
-        model.marketPrice = @"32.9";
-        [tmpArray addObject:model];
-    }
+    NSMutableArray *titleArray = [NSMutableArray arrayWithCapacity:self.categoryArray.count];
     
     NSMutableArray *controllerArray = [NSMutableArray arrayWithCapacity:8];
-    for (NSInteger index = 0; index < 8; index++) {
-        UIViewController *controller = [[UIViewController alloc] init];
-        CategoryDetailView *view = [self createDetailViewWithTitle:@"美容瘦身好口感" dataArray:[tmpArray copy]];
-        [controller.view addSubview:view];
-        [view mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(controller.view.mas_top);
-            make.bottom.equalTo(controller.view.mas_bottom).offset(-49);
-            make.left.equalTo(controller.view.mas_left).offset(fScreen(30));
-            make.right.equalTo(controller.view.mas_right).offset(-fScreen(30));
-        }];
+
+    // 当前的索引
+    NSString *currCategoryId = nil;
+    
+    for (CategoryDetailModel *model in self.categoryArray) {
+        
+        if (currCategoryId == nil) {
+            currCategoryId = model.categoryId;
+        }
+        
+        // 标题
+        [titleArray addObjectSafe:model.categoryName];
+        
+        // 控制器
+        CategoryDetailPageController *controller = [[CategoryDetailPageController alloc] initWithTitle:model.categoryName categoryId:model.categoryId];
+        
         [controllerArray addObject:controller];
     }
     
@@ -78,6 +83,7 @@
     self.pageController.currTitleColor = HexColor(0xe44a62);
     self.pageController.normalTitleColor = HexColor(0x999999);
     [self.pageController.view setBackgroundColor:viewControllerBgColor];
+    [self.pageController moveToIndex:self.initIndex];
     
     [self addChildViewController:self.pageController];
     [self.view addSubview:self.pageController.view];
@@ -98,33 +104,6 @@
         make.width.mas_equalTo(fScreen(68 + 40*2));
         make.height.mas_equalTo(fScreen(68 + 40*2));
     }];
-}
-
-- (CategoryDetailView *)createDetailViewWithTitle:(NSString *)title dataArray:(NSArray *)dataArray
-{
-    UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
-    layout.minimumLineSpacing = fScreen(20);
-    layout.minimumInteritemSpacing = fScreen(20);
-    CGFloat width = kAppWidth - 2*fScreen(30);
-    layout.headerReferenceSize = CGSizeMake(width, fScreen(96));
-    if ([HDDeviceInfo isIPhone5Size] || [HDDeviceInfo isIPhone4Size]) {
-        layout.itemSize = CGSizeMake((width - fScreen(20))/2 - 1, fScreen(470));
-    }
-    else {
-        layout.itemSize = CGSizeMake((width - fScreen(20))/2, fScreen(470));
-    }
-    
-    CategoryDetailView *view = [[CategoryDetailView alloc] initWithFrame:CGRectZero collectionViewLayout:layout title:title modelArray:dataArray];
-    
-    __weak typeof(self) weakSelf = self;
-    
-    view.cellBlock = ^(GoodsModel *model) {
-        GoodsViewController *goodsVC = [[GoodsViewController alloc] initWithGoodsId:model.goodsId];
-        [weakSelf.navigationController pushViewController:goodsVC animated:YES];
-    };
-    
-    [view setBackgroundColor:viewControllerBgColor];
-    return view;
 }
 
 - (void)initUI

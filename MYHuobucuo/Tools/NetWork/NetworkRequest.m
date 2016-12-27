@@ -69,6 +69,70 @@
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
+#pragma mark 
+#pragma mark - Category
+- (void)getCategoryDockListWithBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"parentId":@"0",
+                               @"isall":@NO,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    [postDict setObject:@1 forKey:@"page"];
+    [postDict setObject:@"" forKey:@"size"];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=product&c=Category&a=listCategorys", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+- (void)getCategorySubCategoryListWithParentId:(NSString *)parentId finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"parentId":parentId,
+                               @"isall":@YES,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    [postDict setObject:@1 forKey:@"page"];
+    [postDict setObject:@"" forKey:@"size"];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=product&c=Category&a=listCategorys", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+- (void)getCategoryDetailListWithCategoryId:(NSString *)categoryId page:(NSUInteger)page finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"categoryId":categoryId,
+                               @"page":[NSNumber numberWithInteger:page],
+                               @"size":@20,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=product&c=reader&a=listproducts", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
 #pragma mark
 #pragma mark - User
 - (void)getCheckCodeWithPhoneNumber:(NSString *)phoneNumber type:(MessageCheckCodeType)type finishBlock:(FinishBlock)finishBlock
@@ -77,6 +141,7 @@
     
     NSDictionary *signDict = @{@"telephone":phoneNumber,
                                @"type":[NSNumber numberWithInteger:type],
+                               @"msg":@"",
                                kParamKeyTimestamp:[NSNumber numberWithInteger:time]};
     
     NSString *string1 = [self paramsToMD5:signDict];
@@ -135,6 +200,26 @@
     [postDict setObjectSafe:signString forKey:kParamKeySign];
     
     NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=customer&a=register", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+#pragma mark
+#pragma mark - Order
+- (void)getAddressListWithBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{kParamKeyCustomerId:AppUserManager.user.userId,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=address&a=listaddress", kNetworkRequestHeader];
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 

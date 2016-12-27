@@ -22,7 +22,10 @@
 @property (nonatomic, copy) NSString *city;                 // 城市
 @property (nonatomic, copy) NSString *area;                 // 地区
 @property (nonatomic, copy) NSString *address;              // 详细地址
+@property (nonatomic, copy) NSString *postCode;             // 邮编
 
 @property (nonatomic, assign) BOOL isSelect;                // 是否选中(选择地址的时候使用)
+
+- (void)setValueWithDict:(NSDictionary *)dict;
 
 @end

@@ -18,4 +18,6 @@
 @property (nonatomic, copy) NSString *categoryName;     // 名称
 @property (nonatomic, copy) NSString *categoryImageURL; // 图片
 
+- (void)setValueWithDict:(NSDictionary *)dict;
+
 @end

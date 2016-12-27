@@ -14,6 +14,7 @@
 #import "CategoryCollCell.h"
 #import "CategoryDetailController.h"
 #import "SearchViewController.h"
+#import "NetworkRequest.h"
 
 @interface CategoryViewController () <UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate>
 
@@ -36,9 +37,9 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self requestData];
- 
     [self initUI];
+    
+    [self requestData];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -55,26 +56,98 @@
 }
 
 - (void)requestData
+{    
+    __weak typeof(self) weakSelf = self;
+    
+    // 请求 dock 数据
+    [NetworkManager getCategoryDockListWithBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@", error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            NSDictionary *statusDict = jsonDict[@"status"];
+            
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                NSArray *dataArray = jsonDict[@"data"];
+                NSMutableArray *tmpDockArray = [NSMutableArray array];
+                
+                for (NSDictionary *dict in dataArray) {
+                    
+                    CategoryDockModel *dockModel = [[CategoryDockModel alloc] init];
+                    
+                    [dockModel setValueWithDict:dict];
+                    
+                    [tmpDockArray addObjectSafe:dockModel];
+                }
+                
+                weakSelf.dockDataArray = tmpDockArray;
+                
+                [weakSelf.dockView reloadData];
+                
+                // 默认选中第一项
+                NSIndexPath *firstIndex=[NSIndexPath indexPathForRow:0 inSection:0];
+                [weakSelf.dockView selectRowAtIndexPath:firstIndex animated:YES scrollPosition:UITableViewScrollPositionTop];
+                
+                // 请求第一个 dock 对应的子分类数据
+                CategoryDockModel *defaultDock = (CategoryDockModel *)[self.dockDataArray objectAtIndex:0];
+                [weakSelf loadSubCategoryWithDockId:defaultDock.dockId];
+            }
+        }
+    }];
+}
+
+- (void)loadSubCategoryWithDockId:(NSString *)dockId
 {
-    // 模拟数据
-    NSArray *dockArray = @[@"家电数码", @"新鲜蔬菜", @"休闲零食", @"服饰鞋帽",@"家电数码1", @"新鲜蔬菜1", @"休闲零食1", @"服饰鞋帽1",@"家电数码2", @"新鲜蔬菜2", @"休闲零食2", @"服饰鞋帽2",@"双十一狗粮"];
-    NSMutableArray *tmpDoctArray = [NSMutableArray array];
-    for (NSInteger index = 0; index < dockArray.count; index++) {
-        CategoryDockModel *model = [[CategoryDockModel alloc] init];
-        model.categoryName = dockArray[index];
-        [tmpDoctArray addObject:model];
-    }
-    self.dockDataArray = tmpDoctArray;
-    
-    NSArray *cellNameArray = @[@"杨桃", @"苹果", @"葡萄",@"杨桃", @"苹果", @"葡萄",@"杨桃", @"苹果", @"葡萄"];
-    
-    NSMutableArray *array = [NSMutableArray array];
-    for (NSInteger index = 0; index < 9; index++) {
-        CategoryDetailModel *model = [[CategoryDetailModel alloc] init];
-        model.categoryName = cellNameArray[index];
-        [array addObject:model];
-    }
-    self.colletionViewDataArray = @[@{@"水果": array}, @{@"狗粮" : array}, @{@"PHP" : array}];
+    __weak typeof(self) weakSelf = self;
+    [NetworkManager getCategorySubCategoryListWithParentId:dockId finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            
+            NSDictionary *statusDict = jsonDict[@"status"];
+            
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                
+                NSArray *dataArray = jsonDict[@"data"];
+                
+                NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity:dataArray.count];
+                
+                for (NSDictionary *dict in dataArray) {
+                    
+                    NSString *title = dict[@"category_name"];
+                    NSArray *subList = dict[@"nextLists"];
+                    
+                    NSMutableArray *subTmpArray = [NSMutableArray arrayWithCapacity:subList.count];
+                    
+                    for (NSDictionary *subDict in subList) {
+                        CategoryDetailModel *model = [[CategoryDetailModel alloc] init];
+                        [model setValueWithDict:subDict];
+                        
+                        [subTmpArray addObjectSafe:model];
+                    }
+                    
+                    [tmpArray addObject:@{title : subTmpArray}];
+                }
+                
+                weakSelf.colletionViewDataArray = tmpArray;
+                
+                [weakSelf.collectionView reloadData];
+                
+                [weakSelf.collectionView setContentOffset:CGPointMake(0, 0)];
+            }
+        }
+    }];
 }
 
 - (void)initUI
@@ -94,9 +167,6 @@
         make.width.mas_equalTo(fScreen(178));
         make.bottom.equalTo(self.view.mas_bottom).offset(-49);      // tabBar 的高度
     }];
-    // 默认选中第一项
-    NSIndexPath *firstIndex=[NSIndexPath indexPathForRow:0 inSection:0];
-    [self.dockView selectRowAtIndexPath:firstIndex animated:YES scrollPosition:UITableViewScrollPositionTop];
     
     [self.view addSubview:self.collectionView];
     [self.collectionView mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -134,6 +204,9 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     // 改变 collectionView 数据源
+    CategoryDockModel *model = [self.dockDataArray objectAtIndex:indexPath.row];
+    
+    [self loadSubCategoryWithDockId:model.dockId];
 }
 
 
@@ -146,14 +219,17 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return 9;
+    NSDictionary *dict = [self.colletionViewDataArray objectAtIndex:section];
+    NSArray *array = [dict.allValues objectAtIndex:0];
+    
+    return array.count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     CategoryCollCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:collCellIdentity forIndexPath:indexPath];
     
-    NSDictionary *dict = [self.colletionViewDataArray objectAtIndex:self.currDockIndex];
+    NSDictionary *dict = [self.colletionViewDataArray objectAtIndex:indexPath.section];
     
     NSArray *modelArray = [[dict allValues] objectAtIndex:0];
     
@@ -164,7 +240,12 @@
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    CategoryDetailController *detailVC = [[CategoryDetailController alloc] initWithTitle:@"水果"];
+    NSDictionary *dict = [self.colletionViewDataArray objectAtIndex:indexPath.section];
+    NSArray *array = [dict.allValues objectAtIndex:0];
+    
+    NSString *title = [dict.allKeys objectAtIndex:0];
+    
+    CategoryDetailController *detailVC = [[CategoryDetailController alloc] initWithTitle:title categoryArray:array index:indexPath.item];
     [self.navigationController pushViewController:detailVC animated:YES];
 }
 

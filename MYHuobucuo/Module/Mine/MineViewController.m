@@ -80,7 +80,7 @@
 - (void)setInitShowUserInfo
 {
     // 登录/未登录 数据显示处理
-    if (![HDUserDefaults objectForKey:cUserid]) {
+    if (![AppUserManager hasUser]) {
         [self.userIconImageView setImage:[UIImage imageNamed:@"组-31"]];
         [self.userNameLabel setText:@"登录/注册"];
         [self.collGoodsButton setNumber:@"0"];
@@ -241,18 +241,13 @@
 }
 
 #pragma mark - Button click
-- (void)loginButtonClick:(UIButton *)sender
-{
-    LoginViewController *loginController = [[LoginViewController alloc] init];
-    [self.navigationController pushViewController:loginController animated:NO];
-}
 
 // 用户头像点击事件
 - (void)iconButtonClick:(UIButton *)sender
 {
     // 如果登录进入用户信息界面
     // 未登录 进入登录界面
-    if ([HDUserDefaults objectForKey:cUserid]) {
+    if ([AppUserManager hasUser]) {
         UserInfoViewController *userInfoVC = [[UserInfoViewController alloc] init];
         [self.navigationController pushViewController:userInfoVC animated:YES];
     }
@@ -316,6 +311,13 @@
 // 其他功能 cell 点击
 - (void)otherButtonClick:(UIButton *)sender
 {
+    if (![AppUserManager hasUser]) {
+        
+        [AppUserManager alertToLogin:self.navigationController];
+        
+        return;
+    }
+    
     NSInteger index = sender.tag - MineOtherButtonTag;
     
     switch (index) {

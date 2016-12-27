@@ -21,6 +21,17 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 - (void)testAPI:(FinishBlock)finishBlock;
 
 #pragma mark
+#pragma mark - Category
+// 获取分类dock 列表数据
+- (void)getCategoryDockListWithBlock:(FinishBlock)finishBlock;
+
+// 获取 dock 下级分类列表
+- (void)getCategorySubCategoryListWithParentId:(NSString *)parentId finishBlock:(FinishBlock)finishBlock;
+
+// 分类下具体商品列表
+- (void)getCategoryDetailListWithCategoryId:(NSString *)categoryId page:(NSUInteger)page finishBlock:(FinishBlock)finishBlock;
+
+#pragma mark
 #pragma mark - ShoppingCar
 // 获取购物车数据
 - (void)getShoppingCarInfo:(FinishBlock)finishBlock;
@@ -34,9 +45,10 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 // 清空购物车
 - (void)deleteClearShoppingCar:(FinishBlock)finishBlock;
 
-
-- (void)networkWithUrl:(NSString *)urlString postParametersDict:(NSDictionary *)parametersDict
-           finishBlock:(FinishBlock)finishBlock;
+#pragma mark 
+#pragma mark - Order
+// 查询收货地址列表
+- (void)getAddressListWithBlock:(FinishBlock)finishBlock;
 
 
 #pragma mark
@@ -58,4 +70,6 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
                    finish:(FinishBlock)finishBlock;
 
 
+- (void)networkWithUrl:(NSString *)urlString postParametersDict:(NSDictionary *)parametersDict
+           finishBlock:(FinishBlock)finishBlock;
 @end

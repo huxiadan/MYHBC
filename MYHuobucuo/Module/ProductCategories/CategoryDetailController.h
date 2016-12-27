@@ -12,8 +12,10 @@
 
 #import "BaseViewController.h"
 
+@class CategoryDetailModel;
+
 @interface CategoryDetailController : BaseViewController
 
-- (instancetype)initWithTitle:(NSString *)controllerTitle;
+- (instancetype)initWithTitle:(NSString *)controllerTitle categoryArray:(NSArray<CategoryDetailModel *> *)categoryArray index:(NSInteger)index;
 
 @end

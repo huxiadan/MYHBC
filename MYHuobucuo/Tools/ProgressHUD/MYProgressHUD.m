@@ -35,7 +35,7 @@
 
 + (void)showWaitingViewWithMessage:(NSString *)message
 {
-    if (message.length > 0) {
+    if (message.length == 0) {
         message = @"请等待";
     }
     [SVProgressHUD showWithStatus:message];

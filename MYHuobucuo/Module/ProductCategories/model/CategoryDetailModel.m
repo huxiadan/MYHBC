@@ -10,4 +10,11 @@
 
 @implementation CategoryDetailModel
 
+- (void)setValueWithDict:(NSDictionary *)dict
+{
+    self.categoryId = dict[@"category_id"];
+    self.categoryName = dict[@"category_name"];
+    self.categoryImageURL = dict[@"image"];
+}
+
 @end

@@ -367,8 +367,7 @@
                     // 保存需要的数据
                     NSDictionary *dataDict = jsonDict[@"data"];
                     NSString *customerId = dataDict[@"customer_id"];
-                    [HDUserDefaults setObject:customerId forKey:cUserid];
-                    [HDUserDefaults synchronize];
+                    AppUserManager.user.userId = customerId;
                     
                     [MYProgressHUD showAlertWithMessage:status[@"msg"]];
                     [self.navigationController popToRootViewControllerAnimated:YES];

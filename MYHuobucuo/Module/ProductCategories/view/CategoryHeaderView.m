@@ -58,6 +58,7 @@
             make.left.equalTo(self.titleLabel.mas_right).offset(fScreen(30));
         }];
         self.lineRightView = rightView;
+
     }
     return self;
 }

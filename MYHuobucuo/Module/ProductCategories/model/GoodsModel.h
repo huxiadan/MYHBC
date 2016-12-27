@@ -16,4 +16,6 @@
 @property (nonatomic, copy) NSString *goodsImageURL;        // 图片地址
 @property (nonatomic, copy) NSString *goodsId;              // ID
 
+- (void)setValueWithDict:(NSDictionary *)dict;
+
 @end

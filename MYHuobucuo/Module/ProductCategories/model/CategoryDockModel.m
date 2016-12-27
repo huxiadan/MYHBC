@@ -10,4 +10,10 @@
 
 @implementation CategoryDockModel
 
+- (void)setValueWithDict:(NSDictionary *)dict
+{
+    self.categoryName = dict[@"category_name"];
+    self.dockId = dict[@"category_id"];
+}
+
 @end

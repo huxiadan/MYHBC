@@ -9,6 +9,7 @@
 #import "UserInfoViewController.h"
 #import <Masonry.h>
 #import "EditUserNameController.h"
+#import "AddressController.h"
 
 #define kOptionCellButtonTag 1024
 
@@ -65,11 +66,33 @@
     [self addInfoView];
     
     [self addAddressView];
+    
+    [self addLoginOutView];
 }
 
 - (void)addTitleView
 {
     self.titleView = [self addTitleViewWithTitle:@"个人资料"];
+}
+
+- (void)addLoginOutView
+{
+    UIButton *loginOutButton = [[UIButton alloc] init];
+    //    if ([HDUserDefaults objectForKey:cUserid] != nil) {
+    // 登录
+    [loginOutButton setImage:[UIImage imageNamed:@"button_exit"] forState:UIControlStateNormal];
+    //    }
+    //    else {
+    //
+    //    }
+    [loginOutButton addTarget:self action:@selector(loginButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:loginOutButton];
+    [loginOutButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.bottom.equalTo(self.view.mas_bottom).offset(-fScreen(20));
+        make.centerX.equalTo(self.view.mas_centerX);
+        make.width.mas_equalTo(fScreen(680));
+        make.height.mas_equalTo(fScreen(88));
+    }];
 }
 
 - (void)addInfoView
@@ -80,7 +103,7 @@
     [infoView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self.view);
         make.top.equalTo(self.titleView.mas_bottom).offset(fScreen(20));
-        make.height.mas_equalTo(fScreen(88 * 4) - 1);  // 遮挡底部的横线
+        make.height.mas_equalTo(fScreen(88 * 2) - 1);  // 遮挡底部的横线
     }];
     self.infoView = infoView;
     
@@ -105,22 +128,22 @@
     self.nameLabel = userNameLabel;
     UIView *userNameView = [self makeOptionCellWithTitle:@"昵称" tag:kOptionCellButtonTag + 1 hasArrow:YES rightView:userNameLabel];
     
-    // 性别
-    UILabel *userSexLabel = [self makeRightViewLabel:[NSString stringWithFormat:@"%@", [HDUserDefaults objectForKey:cUserSex]]];
-    UIView *userSexView = [self makeOptionCellWithTitle:@"性别" tag:kOptionCellButtonTag + 2 hasArrow:YES rightView:userSexLabel];
+    // 性别 (后台没有性别,先隐藏)
+//    UILabel *userSexLabel = [self makeRightViewLabel:[NSString stringWithFormat:@"%@", [HDUserDefaults objectForKey:cUserSex]]];
+//    UIView *userSexView = [self makeOptionCellWithTitle:@"性别" tag:kOptionCellButtonTag + 2 hasArrow:YES rightView:userSexLabel];
     
     // 背景图片
-    UIView *backgroundImageView = [self makeOptionCellWithTitle:@"背景图片" tag:kOptionCellButtonTag + 3 hasArrow:YES rightView:nil];
+//    UIView *backgroundImageView = [self makeOptionCellWithTitle:@"背景图片" tag:kOptionCellButtonTag + 3 hasArrow:YES rightView:nil];
     
     [userHeaderView setFrame:CGRectMake(0, 0, width, height)];
     [userNameView setFrame:CGRectMake(0, height, width, height)];
-    [userSexView setFrame:CGRectMake(0, height * 2, width, height)];
-    [backgroundImageView setFrame:CGRectMake(0, height * 3, width, height)];
+//    [userSexView setFrame:CGRectMake(0, height * 2, width, height)];
+//    [backgroundImageView setFrame:CGRectMake(0, height * 2, width, height)];
     
     [infoView addSubview:userHeaderView];
     [infoView addSubview:userNameView];
-    [infoView addSubview:userSexView];
-    [infoView addSubview:backgroundImageView];
+//    [infoView addSubview:userSexView];
+//    [infoView addSubview:backgroundImageView];
 }
 
 - (void)addAddressView
@@ -223,6 +246,15 @@
     return cellView;
 }
 
+#pragma mark - button click
+
+- (void)loginButtonClick:(UIButton *)sender
+{
+    [AppUserManager userLoginOut];
+    
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
 - (void)optionButtonClick:(UIButton *)sender
 {
     UIViewController *toViewController;
@@ -240,6 +272,13 @@
             // 昵称
         {
             toViewController = [[EditUserNameController alloc] init];
+            [self.navigationController pushViewController:toViewController animated:YES];
+        }
+            break;
+        
+        case 100:
+        {
+            toViewController = [[AddressController alloc] init];
             [self.navigationController pushViewController:toViewController animated:YES];
         }
             break;

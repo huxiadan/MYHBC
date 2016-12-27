@@ -200,9 +200,9 @@
 
 - (void)setUserAfterLoginWithDict:(NSDictionary *)userInfo
 {
-    [HDUserDefaults setObject:[userInfo objectForKey:cUserid] forKey:cUserid];
-    [HDUserDefaults setObject:[userInfo objectForKey:cUserName] forKey:cUserName];
-    [HDUserDefaults setObject:[userInfo objectForKey:cUserIcon] forKey:cUserIcon];
+    AppUserManager.user.userId = [userInfo objectForKey:cUserid];
+    AppUserManager.user.userName = [userInfo objectForKey:cUserName];
+    AppUserManager.user.userIconUrl = [userInfo objectForKey:cUserIcon];
 }
 
 @end

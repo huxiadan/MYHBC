@@ -14,15 +14,31 @@
 
 #import "Singleton.h"
 
+#define AppUserManager [UserManager sharedUserManager]
+
+@class UserModel;
+
 @interface UserManager : NSObject
 
 SingletonH(UserManager)
 
+@property (nonatomic, strong) UserModel *user;
+
 // 判断是否有用户登录  登录返回 YES / 未登录返回 NO
 - (BOOL)hasUser;
 
+// 用户登录调用
+- (void)userLogin;
+
 // 用户登出操作
 - (void)userLoginOut;
+
+// 未登录下alertView询问是否登录,确定跳转登录界面
+- (void)alertToLogin:(UINavigationController *)navController;
+
+- (void)saveUserBgImage:(UIImage *)image;
+
+- (UIImage *)getUserBgImage;
 
 @end
 
@@ -39,5 +55,6 @@ SingletonH(UserManager)
 @property (nonatomic, strong) UIImage *userIconImage;       // 用户头像
 @property (nonatomic, assign) UserGroupType userGroupType;  // 用户类型;
 
+- (void)setValueWithDict:(NSDictionary *)dict;
 
 @end

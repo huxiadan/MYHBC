@@ -261,7 +261,7 @@
 
 - (void)loginButtonClick:(UIButton *)sender
 {
-    if ([HDUserDefaults objectForKey:cUserid] != nil) {
+    if ([AppUserManager hasUser]) {
         
     }
     else {
@@ -307,6 +307,7 @@
             toViewController = [[AboutAppController alloc] init];
         }
             break;
+
         case 100:
             // 清除缓存
             [self showActionSheet];

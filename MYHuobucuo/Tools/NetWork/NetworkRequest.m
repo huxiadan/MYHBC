@@ -71,6 +71,7 @@
 
 #pragma mark 
 #pragma mark - Category
+// 获取分类dock 列表数据
 - (void)getCategoryDockListWithBlock:(FinishBlock)finishBlock
 {
     NSInteger time = kRequestTime;
@@ -92,6 +93,7 @@
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
+// 获取 dock 下级分类列表
 - (void)getCategorySubCategoryListWithParentId:(NSString *)parentId finishBlock:(FinishBlock)finishBlock
 {
     NSInteger time = kRequestTime;
@@ -113,6 +115,7 @@
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
+// 分类下具体商品列表
 - (void)getCategoryDetailListWithCategoryId:(NSString *)categoryId page:(NSUInteger)page finishBlock:(FinishBlock)finishBlock
 {
     NSInteger time = kRequestTime;
@@ -133,8 +136,29 @@
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
+// 获取商品的详细信息
+- (void)getGoodsInfoWithGoodsId:(NSString *)goodsId finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"productId" : goodsId,
+                               kParamKeyTimestamp : [NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=product&c=reader&a=getProductInfo", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
 #pragma mark
 #pragma mark - User
+
+// 获取验证码
 - (void)getCheckCodeWithPhoneNumber:(NSString *)phoneNumber type:(MessageCheckCodeType)type finishBlock:(FinishBlock)finishBlock
 {
     NSInteger time = kRequestTime;
@@ -156,6 +180,7 @@
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
+// 登录
 - (void)userLoginWithUserName:(NSString *)userName password:(NSString *)password openId:(NSString *)openId unionId:(NSString *)unionId finishBlock:(FinishBlock)finishBlock
 {
     NSInteger time = kRequestTime;
@@ -179,6 +204,7 @@
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
+// 注册
 - (void)userRegisterWithUserName:(NSString *)userName password:(NSString *)password openId:(NSString *)openId unionId:(NSString *)unionId finishBlock:(FinishBlock)finishBlock
 {
     NSInteger time = kRequestTime;
@@ -205,6 +231,8 @@
 
 #pragma mark
 #pragma mark - Order
+
+// 查询收货地址列表
 - (void)getAddressListWithBlock:(FinishBlock)finishBlock
 {
     NSInteger time = kRequestTime;

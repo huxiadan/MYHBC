@@ -34,6 +34,10 @@
     PubUtil *pubUtil;
     PublicTLV*tlvParse;
 }
+
+- (void)MacGET
+{}
+
 //单例模式
 + (HBtools *)sharedInstance
 {

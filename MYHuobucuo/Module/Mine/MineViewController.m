@@ -88,7 +88,13 @@
     }
     else {
         // 头像
-        [self.userIconImageView sd_setImageWithURL:[NSURL URLWithString:[HDUserDefaults objectForKey:cUserIcon]] placeholderImage:[UIImage imageNamed:@"组-31"]];
+        NSString *iconUrlString = [NSString stringWithFormat:@"%@", [HDUserDefaults objectForKey:cUserIcon]];
+        
+//        iconUrlString = @"http://od7puorzt.bkt.clouddn.com/original/2016/08/22/aLitXWDTrJXpsXEwmXDFvHayL4wClvWu.JPG";
+        
+//        iconUrlString = @"http://b.hiphotos.baidu.com/zhidao/pic/item/902397dda144ad34583cdb30d3a20cf430ad8581.jpg";
+        
+        [self.userIconImageView sd_setImageWithURL:[NSURL URLWithString:iconUrlString] placeholderImage:[UIImage imageNamed:@"组-31"]];
         
         // 用户名
         NSString *userName = [HDUserDefaults objectForKey:cUserName];
@@ -519,6 +525,7 @@
         
         // 头像
         self.userIconImageView = [[UIImageView alloc] init];
+        [self.userIconImageView setClipsToBounds:YES];
         [self.userIconImageView.layer setCornerRadius:fScreen(120/2)];
         [self.userIconImageView.layer setBorderWidth:fScreen(3)];
         [self.userIconImageView.layer setBorderColor:HexColorA(0xffffff, 0.45).CGColor];

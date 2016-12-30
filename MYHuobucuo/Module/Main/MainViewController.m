@@ -70,7 +70,7 @@
     gifView.frame = [[UIScreen mainScreen] bounds];
     [gifView startGIF];
     
-    [self performSelector:@selector(delayUI) withObject:nil afterDelay:1.f];
+    [self performSelector:@selector(delayUI) withObject:nil afterDelay:3.f];
 }
 
 - (void)delayUI

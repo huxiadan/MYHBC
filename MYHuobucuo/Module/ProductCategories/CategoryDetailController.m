@@ -73,6 +73,7 @@
         
         // 控制器
         CategoryDetailPageController *controller = [[CategoryDetailPageController alloc] initWithTitle:model.categoryName categoryId:model.categoryId];
+        controller.currNavigationController = self.navigationController;
         
         [controllerArray addObject:controller];
     }

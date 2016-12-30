@@ -184,7 +184,7 @@ static NSString *collHeaderViewIdentity = @"CategoryPageHeaderViewIdentity";
     
     GoodsViewController *goodsVC = [[GoodsViewController alloc] initWithGoodsId:model.goodsId];
     
-    [self.navigationController pushViewController:goodsVC animated:YES];
+    [self.currNavigationController pushViewController:goodsVC animated:YES];
 }
 
 - (UICollectionView *)detailView

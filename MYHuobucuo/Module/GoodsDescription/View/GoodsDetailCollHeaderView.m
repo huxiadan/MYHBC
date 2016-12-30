@@ -18,16 +18,50 @@
 
 @property (nonatomic, strong) SDCycleScrollView *cycleView;
 @property (nonatomic, strong) UIView *goodsNameView;            // 名称/价格
-@property (nonatomic, strong) UIView *goodsServiceView;          // 服务
+@property (nonatomic, strong) UIView *goodsServiceView;         // 服务
 @property (nonatomic, strong) UIView *goodsSpecView;            // 规格
 @property (nonatomic, strong) UIView *goodsEvaluateView;        // 评价
 @property (nonatomic, strong) UIView *goodsShopView;            // 店铺
+
+@property (nonatomic, strong) UILabel *priceLabel;
+@property (nonatomic, strong) UILabel *marketPriceLabel;
 //@property (nonatomic, strong) UICollectionView *recommendView;  // 推荐商品
 //@property (nonatomic, strong) UIView *bottomView;               // 底部视图
 
 @end
 
 @implementation GoodsDetailCollHeaderView
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(priceChange:) name:kGoodsSpecSelectPriceChangeNoti object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)priceChange:(NSNotification *)infoDict
+{
+    NSString *price = [NSString stringWithFormat:@"¥%@",[infoDict.userInfo objectForKey:@"price"]];
+    
+    NSString *priceText = price;
+    NSMutableAttributedString *priceAttrString = [[NSMutableAttributedString alloc] initWithString:priceText];
+    NSDictionary *priceAttr = @{ NSFontAttributeName : [UIFont systemFontOfSize:fScreen(20)]};
+    [priceAttrString addAttributes:priceAttr range:NSMakeRange(0, 1)];
+    self.priceLabel.attributedText = priceAttrString;
+    
+    [self.priceLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+        CGSize priceSize = [priceText sizeForFontsize:fScreen(40)];
+        make.width.mas_equalTo(priceSize.width);
+    }];
+    
+    [self.marketPriceLabel layoutIfNeeded];
+}
 
 - (void)setGoodsModel:(GoodsDetailModel *)goodsModel
 {
@@ -275,6 +309,7 @@
     UILabel *priceLabel = [[UILabel alloc] init];
     [priceLabel setFont:[UIFont systemFontOfSize:fScreen(40)]];
     [priceLabel setTextColor:HexColor(0xe44a62)];
+    self.priceLabel = priceLabel;
     
     NSString *priceText = [NSString stringWithFormat:@"￥%@",self.goodsModel.goodsPrice];
     NSMutableAttributedString *priceAttrString = [[NSMutableAttributedString alloc] initWithString:priceText];
@@ -324,6 +359,8 @@
     
     // 原价
     UILabel *marketPriceLabel = [[UILabel alloc] init];
+    self.marketPriceLabel = marketPriceLabel;
+    
     [marketPriceLabel setFont:[UIFont systemFontOfSize:fScreen(20)]];
     [marketPriceLabel setTextColor:HexColor(0x666666)];
     NSMutableAttributedString *marketAttrString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"原价:￥%@",self.goodsModel.marketPrice]];
@@ -377,13 +414,16 @@
 - (void)addCycleView
 {
     SDCycleScrollView *cycleView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectZero delegate:self placeholderImage:[UIImage imageNamed:@"img_load_rect"]];
-    NSArray *picArray = @[@"http://pic.58pic.com/58pic/17/37/33/29A58PICGX5_1024.jpg", @"http://pic.90sjimg.com/back_pic/00/04/27/49/d729357f0fdf8eaec3433cb495949ede.jpg", @"http://pic2.ooopic.com/12/80/79/89bOOOPICd2_1024.jpg"];
-    cycleView.imageURLStringsGroup = picArray;
+    
+    cycleView.imageURLStringsGroup = self.goodsModel.goodsImageURLArray;
+    
     [self addSubview:cycleView];
+    
     [cycleView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.top.equalTo(self);
         make.height.mas_equalTo(kAppWidth);
     }];
+    
     self.cycleView = cycleView;
 }
 
@@ -411,7 +451,7 @@
 {
     [label setText:text];
     
-    CGFloat labelWidth = kAppWidth - fScreen(30 + 40 + 30 + 160 + 20 + 30);;
+    CGFloat labelWidth = kAppWidth - fScreen(30 + 30);;
     
     CGSize labelSize = CGSizeMake(labelWidth, MAXFLOAT);
     CGSize textSize = [label.text boundingRectWithSize:labelSize options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName : label.font} context:nil].size;

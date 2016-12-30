@@ -31,6 +31,9 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 // 分类下具体商品列表
 - (void)getCategoryDetailListWithCategoryId:(NSString *)categoryId page:(NSUInteger)page finishBlock:(FinishBlock)finishBlock;
 
+// 获取商品的详细信息
+- (void)getGoodsInfoWithGoodsId:(NSString *)goodsId finishBlock:(FinishBlock)finishBlock;
+
 #pragma mark
 #pragma mark - ShoppingCar
 // 获取购物车数据

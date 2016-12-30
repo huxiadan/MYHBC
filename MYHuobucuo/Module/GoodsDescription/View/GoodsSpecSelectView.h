@@ -11,17 +11,27 @@
  */
 
 #import <UIKit/UIKit.h>
+#import "GoodsDetailModel.h"
 
-typedef void(^SelectSpecBlock)(NSArray *specArray);
+@class GoodsSpecOptionButton;
+
+typedef void(^SelectSpecBlock)(NSArray<GoodsSpecOptionButton *> *selectButtonArray, NSString *price, NSUInteger quantity); // 数组为规格的 id
 
 @interface GoodsSpecSelectView : UIView
 
 @property (nonatomic, strong) SelectSpecBlock selectSpecBlock;
 
-// 根据规格数组初始化
-- (instancetype)initWithSpecArray:(NSArray *)specArray;
+- (instancetype)initWithGoodsDetailModel:(GoodsDetailModel *)model;
 
 - (void)hideView;
 - (void)showView;
+
+@end
+
+
+@interface GoodsSpecOptionButton : UIButton
+
+@property (nonatomic, assign) NSInteger groupIndex;
+@property (nonatomic, copy) NSString *specId;
 
 @end

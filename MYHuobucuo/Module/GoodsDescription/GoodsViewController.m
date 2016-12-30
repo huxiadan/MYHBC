@@ -19,6 +19,7 @@
 #import "PayOrderDetailController.h"
 #import "MainViewController.h"
 #import "MYTabBarController.h"
+#import "NetworkRequest.h"
 
 #import <Masonry.h>
 
@@ -50,8 +51,6 @@
     [super viewDidLoad];
     
     [self requestData];
-
-    [self initUI];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -59,9 +58,15 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)dealloc
+{
+    DLog(@"dealloc");
+}
+
 - (instancetype)initWithGoodsId:(NSString *)goodsId
 {
     if (self = [super init]) {
+        
         self.goodsId = goodsId;
     }
     return self;
@@ -69,33 +74,60 @@
 
 - (void)requestData
 {
-    GoodsDetailModel *model = [[GoodsDetailModel alloc] init];
-    model.goodsName = @"[阴阳师手游] 大天狗,妖刀姬,茨木童子,茨木童子,大天狗,妖刀姬,茨木童子,茨木童子";
-    model.goodsPrice = @"233.3";
-    model.marketPrice = @"333";
-    model.commission = @"4.3";
-    model.showSpecArray = @[@"颜色: 白色,黑色", @"尺寸: S/M/L"];
-    model.specArray = @[@{@"颜色":@[@"白色", @"黑色", @"红色degg", @"隔壁老王之绿色", @"岛国电影之黄色"]},
-                        @{@"果实种类":@[@"自然系", @"超人系", @"动物系"]},
-                        @{@"果实能力":@[@"响雷果实", @"沙沙果实", @"橡胶果实", @"重力果实", @"飘飘果实", @"透明果实", @"花花果实", @"斑马果实", @"震震果实", @"不死鸟果实", @"钢化膜果实"]}];
-    model.evaluateNumber = 9987;
-    model.goodEvaluatePre = @"99.7%";
+    __weak typeof(self) weakSelf = self;
     
-    NSMutableArray *evaArray = [NSMutableArray array];
-    for (NSInteger index = 0; index < 3; index++) {
-        EvaluateModel *evaModel = [[EvaluateModel alloc] init];
-        evaModel.userName = @"东莞一条街";
-        evaModel.starNumber = 4;
-        evaModel.time = @"2016-6-12 14:35";
-        evaModel.contentText = @"标准的十五字标准的十五字标准的十五字标准的十五字标准的十五字";
-        [evaArray addObject:evaModel];
-    }
-    
-    model.shopName = @"不要钱的店";
-    
-    model.evaluateArray = [evaArray copy];
-    
-    self.goodsModel = model;
+    [NetworkManager getGoodsInfoWithGoodsId:@"13388" finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            
+            NSDictionary *statusDict = jsonDict[@"status"];
+            
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                NSDictionary *dataDict = jsonDict[@"data"];
+                
+                GoodsDetailModel *goodsModel = [[GoodsDetailModel alloc] init];
+                
+                [goodsModel setValueWithDict:dataDict];
+                
+                goodsModel.showSpecArray = @[@"颜色: 白色,黑色", @"尺寸: S/M/L"];
+                
+//                goodsModel.specArray = @[@{@"颜色":@[@"白色", @"黑色", @"红色degg", @"隔壁老王之绿色", @"岛国电影之黄色"]},
+//                                    @{@"果实种类":@[@"自然系", @"超人系", @"动物系"]},
+//                                    @{@"果实能力":@[@"响雷果实", @"沙沙果实", @"橡胶果实", @"重力果实", @"飘飘果实", @"透明果实", @"花花果实", @"斑马果实", @"震震果实", @"不死鸟果实", @"钢化膜果实"]}];
+                
+                goodsModel.evaluateNumber = 9987;
+                
+                goodsModel.goodEvaluatePre = @"99.7%";
+                
+                NSMutableArray *evaArray = [NSMutableArray array];
+                
+                for (NSInteger index = 0; index < 3; index++) {
+                    EvaluateModel *evaModel = [[EvaluateModel alloc] init];
+                    evaModel.userName = @"东莞一条街";
+                    evaModel.starNumber = 4;
+                    evaModel.time = @"2016-6-12 14:35";
+                    evaModel.contentText = @"标准的十五字标准的十五字标准的十五字标准的十五字标准的十五字";
+                    [evaArray addObject:evaModel];
+                }
+                
+                goodsModel.shopName = @"不要钱的店";
+                
+                goodsModel.evaluateArray = [evaArray copy];
+                
+                weakSelf.goodsModel = goodsModel;
+                
+                [weakSelf initUI];
+            }
+        }
+    }];
 }
 
 - (void)initUI
@@ -239,6 +271,11 @@
 
 }
 
+- (void)goodsMoreViewHide
+{
+    self.goodsMoreView.hidden = YES;
+}
+
 #pragma mark - HDPageViewController delegate
 - (void)pageViewController:(HDPageViewController *)pageController index:(NSInteger)index
 {
@@ -256,6 +293,10 @@
 - (UIView *)goodsMoreView
 {
     if (!_goodsMoreView) {
+        UIButton *moreCoverView = [[UIButton alloc] init];
+        [moreCoverView setBackgroundColor:[UIColor colorWithWhite:0 alpha:0.15f]];
+        [moreCoverView addTarget:self action:@selector(goodsMoreViewHide) forControlEvents:UIControlEventTouchUpInside];
+        
         UIView *moreView = [[UIView alloc] init];
         [moreView setBackgroundColor:[UIColor whiteColor]];
         
@@ -298,17 +339,22 @@
             make.top.equalTo(moreView.mas_centerY);
         }];
         
-        [self.view addSubview:moreView];
-        [moreView mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.right.equalTo(self.view);
+        [self.view addSubview:moreCoverView];
+        [moreCoverView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.right.bottom.equalTo(self.view);
             make.top.equalTo(self.view).offset(fScreen(88) + 20 + 2);
+        }];
+        
+        [moreCoverView addSubview:moreView];
+        [moreView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.top.equalTo(moreCoverView);
             make.height.mas_equalTo(fScreen(184));
             make.width.mas_equalTo(fScreen(290));
         }];
         
-        [moreView setHidden:YES];
+        [moreCoverView setHidden:YES];
         
-        _goodsMoreView = moreView;
+        _goodsMoreView = moreCoverView;
     }
     return _goodsMoreView;
 }

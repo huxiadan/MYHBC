@@ -9,20 +9,24 @@
 #import <Foundation/Foundation.h>
 #import "ShareModel.h"
 
-@class OtherGroupModel;
+@class OtherGroupModel,GoodsSpecDealModel;
 
 @interface GoodsDetailModel : NSObject
 
 @property (nonatomic, copy) NSString *goodsName;            // 名称
 @property (nonatomic, copy) NSString *goodsPrice;           // 价格
 @property (nonatomic, copy) NSString *marketPrice;          // 市场价
-@property (nonatomic, copy) NSString *goodsImageURL;        // 图片地址
+@property (nonatomic, copy) NSArray *goodsImageURLArray;    // 图片地址
 @property (nonatomic, copy) NSString *goodsId;              // ID
+@property (nonatomic, copy) NSString *specShowImage;        // 规格选择展示的图片
 
 // 商品详情页使用
 @property (nonatomic, copy) NSString *commission;           // 佣金
+
 @property (nonatomic, strong) NSArray *specArray;           // 规格数组 元素是字典 (key:规格  value: 规格具体选项)
 @property (nonatomic, strong) NSArray *showSpecArray;       // 显示的规格数组,后台根据销量返回2种规格用于显示
+@property (nonatomic, strong) NSArray<GoodsSpecDealModel *> *specDealArray;       // 规格处理使用的数组(记录不同规格组合的价格/数量)
+
 @property (nonatomic, strong) NSArray *evaluateArray;       // 显示的3个评论的数组(元素为EvaluateModel对象)
 @property (nonatomic, assign) NSInteger evaluateNumber;     // 评论数量
 @property (nonatomic, copy) NSString *goodEvaluatePre;      // 好评率
@@ -43,6 +47,25 @@
 @property (nonatomic, strong) NSArray<OtherGroupModel *> *otherGroupsArray; // 其他拼团
 @property (nonatomic, assign) NSUInteger endTime;           // 结束时间
 @property (nonatomic, strong) NSArray<NSString *> *rulesArray;          // 规则
+
+- (void)setValueWithDict:(NSDictionary *)dict;
+
+@end
+
+// 规格模型
+@interface GoodsSpecModel : NSObject
+
+@property (nonatomic, copy) NSString *specId;       // 规格的 id
+@property (nonatomic, copy) NSString *specName;     // 规格的显示文字
+
+@end
+
+// 规格处理模型
+@interface GoodsSpecDealModel : NSObject
+
+@property (nonatomic, copy) NSString *specGroupKey;         // 规格 id 组合的 key
+@property (nonatomic, copy) NSString *specGroupPrice;       // 组合的价格
+@property (nonatomic, copy) NSString *specGroupQuantity;    // 组合的数量
 
 @end
 

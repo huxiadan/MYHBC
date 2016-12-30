@@ -23,6 +23,9 @@
 @property (nonatomic, strong) UIView *goodsEvaluateView;        // 评价
 @property (nonatomic, strong) UIView *goodsShopView;            // 店铺
 
+@property (nonatomic, strong) UILabel *priceLabel;
+@property (nonatomic, strong) UIView *commBgView;
+
 @property (nonatomic, strong) GoodsGroupOhterGroupTabView *otherGroupsView;          // 其他拼团
 @property (nonatomic, strong) UIView *rulesView;                // 规则视图
 
@@ -36,6 +39,35 @@
 @end
 
 @implementation GoodsDetailCollGroupMoneyHeader
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    if (self = [super initWithFrame:frame]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(priceChange:) name:kGoodsSpecSelectPriceChangeNoti object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)priceChange:(NSNotification *)infoDict
+{
+    NSString *price = [NSString stringWithFormat:@"¥%@",[infoDict.userInfo objectForKey:@"price"]];
+    
+    NSString *priceText = price;
+    NSMutableAttributedString *priceAttrString = [[NSMutableAttributedString alloc] initWithString:priceText];
+    NSDictionary *priceAttr = @{ NSFontAttributeName : [UIFont systemFontOfSize:fScreen(20)]};
+    [priceAttrString addAttributes:priceAttr range:NSMakeRange(0, 1)];
+    self.priceLabel.attributedText = priceAttrString;
+    
+    [self.priceLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+        CGSize priceSize = [priceText sizeForFontsize:fScreen(40)];
+        make.width.mas_equalTo(priceSize.width);
+    }];
+}
 
 - (void)setNavigationController:(UINavigationController *)navigationController
 {
@@ -509,6 +541,7 @@
         UILabel *priceLabel = [[UILabel alloc] init];
         [priceLabel setFont:[UIFont systemFontOfSize:fScreen(40)]];
         [priceLabel setTextColor:HexColor(0xe44a62)];
+        self.priceLabel = priceLabel;
         
         NSString *priceText = [NSString stringWithFormat:@"￥%@",self.goodsModel.goodsPrice];
         NSMutableAttributedString *priceAttrString = [[NSMutableAttributedString alloc] initWithString:priceText];
@@ -527,7 +560,9 @@
         
         // 佣金
         UIImage *commBgImage = [[UIImage imageNamed:@"icon_yongjin"] resizableImageWithCapInsets:UIEdgeInsetsMake(1, fScreen(10), 1, fScreen(45))];
+        
         UIImageView *commBgView = [[UIImageView alloc] initWithImage:commBgImage];
+        self.commBgView = commBgView;
         
         NSString *commissionString = [NSString stringWithFormat:@"¥%@", self.goodsModel.commission];
         CGSize commisSize = [commissionString sizeForFontsize:fScreen(16)];
@@ -706,7 +741,8 @@
 {
     [label setText:text];
     
-    CGFloat labelWidth = kAppWidth - fScreen(30 + 40 + 30 + 160 + 20 + 30);;
+//    CGFloat labelWidth = kAppWidth - fScreen(30 + 40 + 30 + 160 + 20 + 30);
+    CGFloat labelWidth = kAppWidth - fScreen(30 + 30);
     
     CGSize labelSize = CGSizeMake(labelWidth, MAXFLOAT);
     CGSize textSize = [label.text boundingRectWithSize:labelSize options:NSStringDrawingTruncatesLastVisibleLine | NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading attributes:@{NSFontAttributeName : label.font} context:nil].size;

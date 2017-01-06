@@ -36,8 +36,11 @@
     [self setBackgroundColor:viewControllerBgColor];
     
     UIView *buttonView = [[UIView alloc] init];
+    
     [buttonView setBackgroundColor:[UIColor whiteColor]];
+    
     [self addSubview:buttonView];
+    
     [buttonView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self);
         make.top.equalTo(self).offset(1);
@@ -48,6 +51,7 @@
     CGFloat y = fScreen(18);
     CGFloat width = fScreen(116);
     CGFloat height = fScreen(48);
+    
     for (NSInteger index = 0; index < 4; index++) {
         UIButton *button = [self makeButtonWithTag:index];
         [button setFrame:CGRectMake(x, y, width, height)];
@@ -56,29 +60,41 @@
     }
     
     UIView *lineView = [[UIView alloc] init];
+    
     [lineView setBackgroundColor:[UIColor whiteColor]];
+    
     [self addSubview:lineView];
+    
     [lineView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.bottom.right.equalTo(self);
         make.height.mas_equalTo(fScreen(10));
     }];
 }
 
-- (UIButton *)makeButtonWithTag:(EvaluateHeaderTag)tag
+- (UIButton *)makeButtonWithTag:(EvaluateType)tag
 {
     UIButton *button = [[UIButton alloc] init];
     
     [button setBackgroundColor:[UIColor whiteColor]];
+    
     [button.titleLabel setFont:[UIFont systemFontOfSize:fScreen(28)]];
+    
     [button setTitleColor:kEvaluateBtnNormalBorderColor forState:UIControlStateNormal];
+    
     [button setTitleColor:kEvaluateBtnSelectedBorderColor forState:UIControlStateSelected];
+    
     button.layer.borderColor = kEvaluateBtnNormalBorderColor.CGColor;
+    
     button.layer.borderWidth = 1.0f;
+    
     [button.layer setCornerRadius:fScreen(24)];
+    
     [button addTarget:self action:@selector(buttonClick:) forControlEvents:UIControlEventTouchUpInside];
     
+    [button setTag:tag];
+    
     switch (tag) {
-        case EvaluateHeaderTag_All:
+        case EvaluateType_All:
         default:
             [button setTitle:@"全部" forState:UIControlStateNormal];
             
@@ -88,13 +104,13 @@
             
             self.currButton = button;
             break;
-        case EvaluateHeaderTag_Best:
+        case EvaluateType_Best:
             [button setTitle:@"好评" forState:UIControlStateNormal];
             break;
-        case EvaluateHeaderTag_Good:
+        case EvaluateType_Good:
             [button setTitle:@"中评" forState:UIControlStateNormal];
             break;
-        case EvaluateHeaderTag_Bad:
+        case EvaluateType_Bad:
             [button setTitle:@"差评" forState:UIControlStateNormal];
             break;
     }
@@ -105,12 +121,15 @@
 - (void)buttonClick:(UIButton *)sender
 {
     if (sender != self.currButton) {
+        
         self.currButton.selected = NO;
+        
         [self.currButton.layer setBorderColor:kEvaluateBtnNormalBorderColor.CGColor];
         [self.currButton setTitleColor:kEvaluateBtnNormalBorderColor forState:UIControlStateNormal];
         [self.currButton setBackgroundColor:kEvaluateBtnNormalBGColor];
         
         sender.selected = YES;
+        
         [sender.layer setBorderColor:kEvaluateBtnSelectedBorderColor.CGColor];
         [sender setTitleColor:kEvaluateBtnSelectedBorderColor forState:UIControlStateNormal];
         [sender setBackgroundColor:kEvaluateBtnSelectedBGColor];

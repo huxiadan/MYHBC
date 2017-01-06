@@ -104,6 +104,14 @@
         make.height.mas_equalTo(fScreen(600));
     }];
     
+    UIButton *coverButton = [[UIButton alloc] init];
+    [coverButton addTarget:self action:@selector(coverClick:) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:coverButton];
+    [coverButton mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.top.equalTo(self);
+        make.bottom.equalTo(contentView.mas_top);
+    }];
+    
     UIButton *escButton = [[UIButton alloc] init];
     [escButton setTitle:@"取消" forState:UIControlStateNormal];
     [escButton setTitleColor:HexColor(0xe44a62) forState:UIControlStateNormal];
@@ -216,6 +224,11 @@
 }
 
 #pragma mark - button click
+- (void)coverClick:(UIButton *)sender
+{
+    [self hide];
+}
+
 - (void)escButtonClick:(UIButton *)sender
 {
     [self hide];

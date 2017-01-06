@@ -26,7 +26,7 @@
 
 #define MineOtherButtonTag 1000
 
-@interface MineViewController ()
+@interface MineViewController () <UIAlertViewDelegate>
 
 @property (nonatomic, strong) UIView *userInfoView;         // 顶部用户信息
 @property (nonatomic, strong) UIView *userOrderView;        // 用户订单
@@ -51,6 +51,35 @@
     [self hideNavigationBar];
     
     [self showTabBar];
+    
+    // 如果登录, 请求一次用户信息
+    if ([HDUserDefaults objectForKey:cUserid]) {
+        
+        __weak typeof(self) weakSelf = self;
+        
+        [NetworkManager getUserInfoWifhFinish:^(id jsonData, NSError *error) {
+            if (error) {
+                DLog(@"%@",error.localizedDescription);
+            }
+            else {
+                NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                NSDictionary *statusDict = jsonDict[@"status"];
+                if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                    [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+                }
+                else {
+                    NSDictionary *dataDict = jsonDict[@"data"];
+                    
+                    // 收藏商品
+                    weakSelf.collGoodsButton.number = [dataDict objectForKey:@"favorite_product"];
+                    
+                    // 收藏店铺
+                    // 金额
+                    [weakSelf.walletMoneyLabel setText:[dataDict objectForKey:@"balance"]];
+                }
+            }
+        }];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -104,7 +133,7 @@
         [self.userNameLabel setText:userName];
         
         // 钱包
-        NSString *walletMoney = @"10000.0"; //[HDUserDefaults objectForKey:cUserWalletMoney];
+        NSString *walletMoney = @"0.00"; //[HDUserDefaults objectForKey:cUserWalletMoney];
         if (walletMoney) {
             [self.walletMoneyLabel setText:walletMoney];
             CGSize textSize = [walletMoney sizeForFontsize:fScreen(24)];
@@ -274,6 +303,13 @@
 // 收藏的商品点击
 - (void)collectionGoodsButtonClick
 {
+    if (![AppUserManager hasUser]) {
+        
+        [AppUserManager alertToLogin:self.navigationController];
+        
+        return;
+    }
+    
     CollectionGoodsController *collGoodsVC = [[CollectionGoodsController alloc] init];
     [self.navigationController pushViewController:collGoodsVC animated:YES];
 }
@@ -281,6 +317,13 @@
 // 关注的店铺点击
 - (void)collectionStoreButtonClick
 {
+    if (![AppUserManager hasUser]) {
+        
+        [AppUserManager alertToLogin:self.navigationController];
+        
+        return;
+    }
+    
     CollectionShopController *collShopVC = [[CollectionShopController alloc] init];
     [self.navigationController pushViewController:collShopVC animated:YES];
 }
@@ -288,6 +331,13 @@
 // 订单状态相关按钮点击
 - (void)orderButtonClick:(id)buttonTitle
 {
+    if (![AppUserManager hasUser]) {
+        
+        [AppUserManager alertToLogin:self.navigationController];
+        
+        return;
+    }
+    
     MineOrderType type;
     
     if ([buttonTitle isKindOfClass:[UIButton class]]) {
@@ -317,14 +367,16 @@
 // 其他功能 cell 点击
 - (void)otherButtonClick:(UIButton *)sender
 {
-    if (![AppUserManager hasUser]) {
-        
-        [AppUserManager alertToLogin:self.navigationController];
-        
-        return;
-    }
-    
     NSInteger index = sender.tag - MineOtherButtonTag;
+    
+    if (index != 2) {
+        if (![AppUserManager hasUser]) {
+            
+            [AppUserManager alertToLogin:self.navigationController];
+            
+            return;
+        }
+    }
     
     switch (index) {
         case 0:
@@ -552,21 +604,6 @@
             make.height.mas_equalTo(textSize.height);
         }];
         
-        
-        // 设置按钮
-        UIButton *settingButton = [[UIButton alloc] init];
-        [settingButton setImage:[UIImage imageNamed:@"icon-shezhi"] forState:UIControlStateNormal];
-        [settingButton addTarget:self action:@selector(settingButtonClick:) forControlEvents:UIControlEventTouchUpInside];
-        [_userInfoView addSubview:settingButton];
-        
-        [settingButton mas_makeConstraints:^(MASConstraintMaker *make) {
-            make.width.mas_equalTo(fScreen(44 + 28*2));
-            make.height.mas_equalTo(fScreen(44 + 28*2));
-            make.top.equalTo(_userInfoView.mas_top).offset(fScreen(54 - 28));
-            make.right.equalTo(_userInfoView.mas_right);
-        }];
-        
-        
         __weak typeof(self) weakSelf = self;
         
         // 收藏的商品
@@ -615,6 +652,20 @@
             make.bottom.equalTo(self.collGoodsButton.mas_top);
             make.top.equalTo(self.userIconImageView.mas_top);
         }];
+        
+        // 设置按钮
+        UIButton *settingButton = [[UIButton alloc] init];
+        [settingButton setImage:[UIImage imageNamed:@"icon-shezhi"] forState:UIControlStateNormal];
+        [settingButton addTarget:self action:@selector(settingButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [_userInfoView addSubview:settingButton];
+        
+        [settingButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.width.mas_equalTo(fScreen(44 + 28*2));
+            make.height.mas_equalTo(fScreen(44 + 28*2));
+            make.top.equalTo(_userInfoView.mas_top).offset(fScreen(54 - 28));
+            make.right.equalTo(_userInfoView.mas_right);
+        }];
+
     }
     return _userInfoView;
 }

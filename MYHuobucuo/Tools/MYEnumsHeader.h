@@ -32,14 +32,6 @@ typedef NS_ENUM(NSInteger) {
     ShopIconType_Company,   // 企业专营
 }ShopIconType;
 
-#pragma mark 评价类型
-typedef NS_ENUM(NSInteger) {
-    EvaluateHeaderTag_All = 0,      // 全部
-    EvaluateHeaderTag_Best = 1,     // 好评
-    EvaluateHeaderTag_Good = 2,     // 中评
-    EvaluateHeaderTag_Bad = 3       // 差评
-}EvaluateHeaderTag;
-
 #pragma mark 拼团类型
 typedef NS_ENUM(NSInteger) {
     GroupType_MasterFree = 0,       // 团长免单团
@@ -112,9 +104,20 @@ typedef NS_ENUM(NSInteger) {
 }UserGroupType;
 
 
+#pragma mark 评价类型
+typedef NS_ENUM(NSInteger) {
+    EvaluateType_All = 0,       // 全部评价
+    EvaluateType_Best,          // 好评
+    EvaluateType_Good,          // 中评
+    EvaluateType_Bad            // 差评
+}EvaluateType;
 
 
-
+#pragma mark 收藏类型
+typedef NS_ENUM(NSInteger) {
+    CollectionGoodsType_Invalid = 1,    // 失效的商品
+    CollectionGoodsType_Normal          // 正常收藏的商品
+}CollectionGoodsType;
 
 
 

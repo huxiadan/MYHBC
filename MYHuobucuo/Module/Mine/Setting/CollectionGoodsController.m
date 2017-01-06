@@ -10,6 +10,9 @@
 #import "CollGoodsCell.h"
 #import "ShareView.h"
 #import <Masonry.h>
+#import "NetworkRequest.h"
+
+#define kPageSize 15
 
 @interface CollectionGoodsController () <UITableViewDelegate, UITableViewDataSource>
 
@@ -58,28 +61,86 @@
 
 - (void)requestData
 {
-    // 模拟数据
-    // 全部
-    NSMutableArray *tmpArray = [[NSMutableArray alloc] init];
-    for (NSInteger index = 0; index < 6; index++) {
-        CollGoodsModel *model = [[CollGoodsModel alloc] init];
-        model.goodsName = [NSString stringWithFormat:@"老子随手就是一个标准的十五个字-%ld 老子随手就是一个标准的十五个字老子随手就是一个标准的十五个字", index];
-        model.goodsPrice = @"88.8";
-        model.isInvalid = index == 3 ? YES : NO;
-        [tmpArray addObject:model];
-    }
-    self.dataList = [tmpArray copy];
+    [MYProgressHUD showWaitingViewWithMessage:@"加载中..."];
     
-    // 失效
-    NSMutableArray *invTmpArray = [[NSMutableArray alloc] init];
-    for (NSInteger index = 0; index < 6; index++) {
-        CollGoodsModel *model = [[CollGoodsModel alloc] init];
-        model.goodsName = [NSString stringWithFormat:@"我已经是一个废商品了- %ld", index];
-        model.goodsPrice = @"88.8";
-        model.isInvalid = YES;
-        [invTmpArray addObject:model];
-    }
-    self.invDataList = [invTmpArray copy];
+    __weak typeof(self) weakSelf = self;
+    
+    // 请求有效的收藏商品
+    [NetworkManager getUserCollectGoodsListWithPage:1 pageSize:kPageSize collectionType:CollectionGoodsType_Normal finishBlock:^(id jsonData, NSError *error) {
+        
+        [MYProgressHUD dismissMessageView];
+        
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            NSDictionary *statusDict = jsonDict[@"status"];
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                NSDictionary *dataDict = jsonDict[@"data"];
+                
+                NSArray *dataArray = [dataDict objectForKey:@"lists"];
+                
+                if (dataArray.count > 0) {
+                    
+                    NSMutableArray *collTmpArray = [NSMutableArray array];
+                    
+                    for (NSDictionary *dict in dataArray) {
+                        
+                        CollGoodsModel *collModel = [[CollGoodsModel alloc] init];
+                        
+                        [collModel setValueWithDict:dict];
+                        
+                        [collTmpArray addObjectSafe:collModel];
+                    }
+                    
+                    weakSelf.dataList = [collTmpArray copy];
+                    
+                    [weakSelf.listView reloadData];
+                }
+            }
+        }
+    }];
+    
+    // 请求失效商品
+    [NetworkManager getUserCollectGoodsListWithPage:1 pageSize:kPageSize collectionType:CollectionGoodsType_Invalid finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            NSDictionary *statusDict = jsonDict[@"status"];
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                NSDictionary *dataDict = jsonDict[@"data"];
+                
+                NSArray *dataArray = [dataDict objectForKey:@"lists"];
+                
+                if (dataArray.count > 0) {
+                    
+                    NSMutableArray *collInvTmpArray = [NSMutableArray array];
+                    
+                    for (NSDictionary *dict in dataArray) {
+                        
+                        CollGoodsModel *collModel = [[CollGoodsModel alloc] init];
+                        
+                        [collModel setValueWithDict:dict];
+                        
+                        [collInvTmpArray addObjectSafe:collModel];
+                    }
+                    
+                    weakSelf.invDataList = [collInvTmpArray copy];
+                    
+                    [weakSelf.invListView reloadData];
+                }
+            }
+        }
+    }];
 }
 
 - (void)initUI

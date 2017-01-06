@@ -18,6 +18,7 @@
 @property (nonatomic, copy) NSString *phoneNumber;          // 联系电话
 @property (nonatomic, assign) BOOL isDefaultAddress;        // 是否默认地址
 
+@property (nonatomic, copy) NSString *addressId;
 @property (nonatomic, copy) NSString *province;             // 省份
 @property (nonatomic, copy) NSString *city;                 // 城市
 @property (nonatomic, copy) NSString *area;                 // 地区

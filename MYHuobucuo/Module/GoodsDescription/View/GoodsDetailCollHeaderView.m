@@ -123,7 +123,7 @@
     [self addSubview:view];
     [view mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self);
-        make.top.equalTo(self.goodsEvaluateView.mas_bottom).offset(fScreen(20));
+        make.top.equalTo(self.goodsEvaluateView.mas_bottom).offset(self.goodsModel.evaluateArray.count > 0 ? fScreen(20) : 0);
         make.height.mas_equalTo(fScreen(160));
     }];
     self.goodsShopView = view;
@@ -193,11 +193,19 @@
 - (void)addEvaluateView
 {
     // 计算高度
-    CGFloat height = fScreen(80 * 2);
+    CGFloat height ;
     
-    for (EvaluateModel *evaModel in self.goodsModel.evaluateArray) {
-
-        height += evaModel.rowHeight - fScreen(10);
+    if (self.goodsModel.evaluateArray.count > 0) {
+        
+        height = fScreen(80 * 2);
+        
+        for (EvaluateModel *evaModel in self.goodsModel.evaluateArray) {
+            
+            height += evaModel.rowHeight - fScreen(10);
+        }
+    }
+    else {
+        height = 1;
     }
     
     [self addSubview:self.goodsEvaluateView];

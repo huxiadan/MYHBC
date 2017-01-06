@@ -11,6 +11,7 @@
 #import "AddressPickerView.h"
 #import "MYProgressHUD.h"
 #import <Masonry.h>
+#import "NetworkRequest.h"
 
 @interface AddressEditController ()
 
@@ -415,6 +416,8 @@
         return;
     }
     
+    AddressModel *model;
+    
     if ([self.titleString rangeOfString:@"修改"].length > 0) {
         self.model.receivePersonName = self.personField.text;
         self.model.phoneNumber = self.phoneField.text;
@@ -433,9 +436,11 @@
                 }
             }
         }
+        
+        model = self.model;
     }
     else {
-        AddressModel *model = [[AddressModel alloc] init];
+        model = [[AddressModel alloc] init];
         model.receivePersonName = self.personField.text;
         model.phoneNumber = self.phoneField.text;
         model.province = self.provinceLabel.text;
@@ -444,9 +449,9 @@
         model.address = self.addrTextView.text;
         if (self.defaultButton.isSelected) {
             NSArray *modelArray = [MYSingleTon sharedMYSingleTon].addressModelArray;
-            for (AddressModel *model in modelArray) {
-                if (model.isDefaultAddress) {
-                    model.isDefaultAddress = NO;
+            for (AddressModel *fModel in modelArray) {
+                if (fModel.isDefaultAddress) {
+                    fModel.isDefaultAddress = NO;
                     self.model.isDefaultAddress = YES;
                 }
             }
@@ -457,9 +462,25 @@
         [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
     }
     
-#warning 请求接口
+    __weak typeof(self) weakSelf = self;
     
-    [self.navigationController popViewControllerAnimated:YES];
+    [NetworkManager updateUserAddressWithModel:model finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            NSDictionary *statusDict = jsonDict[@"status"];
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                [MYProgressHUD showAlertWithMessage:@"保存成功~"];
+                
+                [weakSelf.navigationController popViewControllerAnimated:YES];
+            }
+        }
+    }];
 }
 
 - (void)dataPickerButtonClick:(UIButton *)sender
@@ -517,13 +538,30 @@
 - (void)sureButtonClick:(UIButton *)sender
 {
     // 删除
-#warning 请求接口
-    NSMutableArray *tmpArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].addressModelArray];
-    [tmpArray removeObject:self.model];
-    [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
+    __weak typeof(self) weakSelf = self;
     
-    // 返回
-    [self.navigationController popViewControllerAnimated:YES];
+    [NetworkManager deleteUserAddressWithAddressId:self.model.addressId finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            NSDictionary *statusDict = jsonDict[@"status"];
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                [MYProgressHUD showAlertWithMessage:@"删除成功~"];
+                
+                NSMutableArray *tmpArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].addressModelArray];
+                [tmpArray removeObject:weakSelf.model];
+                [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
+                
+                // 返回
+                [weakSelf.navigationController popViewControllerAnimated:YES];
+            }
+        }
+    }];
 }
 
 #pragma mark - Getter

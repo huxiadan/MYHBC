@@ -155,6 +155,30 @@
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
+// 获取商品评价
+- (void)getGoodsEvaluateWithGoodsId:(NSString *)goodsId page:(NSUInteger)page pageSize:(NSUInteger)pageSize evaluateType:(EvaluateType)evaluateType finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"productId":goodsId,
+                               @"page":[NSNumber numberWithInteger:page],
+                               @"size":[NSNumber numberWithInteger:pageSize],
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    if (evaluateType != EvaluateType_All) {
+        [postDict setObject:[NSNumber numberWithInteger:evaluateType] forKey:@"rating"];
+    }
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=product&c=reader&a=listProductReviews", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
 #pragma mark
 #pragma mark - User
 
@@ -226,6 +250,95 @@
     [postDict setObjectSafe:signString forKey:kParamKeySign];
     
     NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=customer&a=register", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 获取用户信息
+- (void)getUserInfoWifhFinish:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               kParamKeyTimestamp :[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=reader&a=getcustomerinfo", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 获取收藏商品列表
+- (void)getUserCollectGoodsListWithPage:(NSUInteger)page pageSize:(NSUInteger)pageSize collectionType:(CollectionGoodsType)collectionType finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    [postDict setObject:[NSNumber numberWithInteger:page] forKey:@"page"];
+    [postDict setObject:[NSNumber numberWithInteger:pageSize] forKey:@"size"];
+    [postDict setObject:[NSNumber numberWithInteger:collectionType] forKey:@"status"];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=reader&a=listFavorite", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 收货地址新增和修改
+- (void)updateUserAddressWithModel:(AddressModel *)addressModel finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"addressName":@"",
+                               kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               @"addressId":addressModel.addressId,
+                               @"shippingName":addressModel.receivePersonName,
+                               @"telephone":addressModel.phoneNumber,
+                               @"address":addressModel.address,
+                               @"zoneId":addressModel.province,
+                               @"cityId":addressModel.city,
+                               @"districtId":addressModel.area,
+                               @"postcode":@"",
+                               @"note":@"",
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=address&a=saveAddress", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 删除收货地址
+- (void)deleteUserAddressWithAddressId:(NSString *)addressId finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{@"addressId":addressId,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=address&a=deleteAddress", kNetworkRequestHeader];
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
@@ -329,22 +442,26 @@
         return;
     }
     
+    [UIApplication sharedApplication].networkActivityIndicatorVisible = YES;
+    
     // 请求数据
     [self.httpSessionManager POST:urlString parameters:parameters progress:^(NSProgress * _Nonnull uploadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
         if (finishBlock) {
             finishBlock(responseObject, nil);
         }
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        
+        [UIApplication sharedApplication].networkActivityIndicatorVisible = NO;
+        
         if (finishBlock) {
             finishBlock(nil, error);
         }
     }];
-    
-    
-
- 
 }
 
 /**

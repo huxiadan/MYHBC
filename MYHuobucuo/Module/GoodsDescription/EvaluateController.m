@@ -10,11 +10,20 @@
 #import "EvaluateTabHeader.h"
 #import "EvaluateTabCell.h"
 #import <Masonry.h>
+#import "NetworkRequest.h"
+#import "HDRefresh.h"
+
+#define kPageSize 10
 
 @interface EvaluateController () <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) UITableView *evaListView;     // 评论列表
-@property (nonatomic, strong) NSArray *dataList;
+
+@property (nonatomic, strong) NSArray<EvaluateModel *> *dataList;
+
+@property (nonatomic, assign) EvaluateType currType;
+
+@property (nonatomic, assign) NSUInteger currPage;
 
 @end
 
@@ -22,10 +31,20 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    [self requestData];
 
     [self initUI];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    
+    if (!self.dataList) {
+        
+        self.goodsId = @"264";
+        
+        [self requestData];
+    }
 }
 
 - (void)didReceiveMemoryWarning {
@@ -33,46 +52,150 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)requestData
+- (void)loadMoreEvaluate
 {
-    NSInteger count = 21;
-    NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity:count];
-    for (NSInteger index = 0; index < count; index++) {
-        EvaluateModel *model = [[EvaluateModel alloc] init];
-        model.userName = @"厦门吴彦祖";
-        model.starNumber = index%5 + 1;
-        model.contentText = @"今天去医院体检要查大便, 我看小护士挺漂亮, 于是就想到逗她一下。跑门口买了一个烤红署, 捏成泥放在了大便盒里,护士说太多了, 喊处理一下, 我说, 不用麻烦了, 说完用手拿着就吃, 小护士连口罩都来不及摘, 当场吐了三个。这时旁边的人拍了拍我的肩膀：兄弟你拿错了, 这盒才是你的!------";
-        model.time = @"2016-06-12 07:15";
-        if (index != 3) {
-            if (index%3 == 0) {
-                model.photoArray = @[@"http://img4.duitang.com/uploads/item/201502/28/20150228131257_LGRFB.thumb.224_0.jpeg", @"http://www.qqtu8.net/f/20151218194626_1.jpg"];
-            }
-            else if (index%5 == 0) {
-                model.photoArray = @[];
+    self.currPage++;
+    
+    [self requestDataWithType:self.currType page:self.currPage isRefresh:NO];
+}
+
+- (void)refreshData
+{
+    self.currPage = 1;
+    
+    self.dataList = nil;
+    
+    self.evaListView.mj_footer.state = MJRefreshStateIdle;
+    
+    [self requestDataWithType:self.currType page:self.currPage isRefresh:YES];
+}
+
+- (void)requestDataWithType:(EvaluateType)type page:(NSUInteger)page isRefresh:(BOOL)isRefresh
+{
+    __weak typeof(self) weakSelf = self;
+    
+    [NetworkManager getGoodsEvaluateWithGoodsId:self.goodsId page:self.currPage pageSize:kPageSize evaluateType:self.currType finishBlock:^(id jsonData, NSError *error) {
+        
+        [weakSelf.evaListView.mj_header endRefreshing];
+        [weakSelf.evaListView.mj_footer endRefreshing];
+        
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            
+            NSDictionary *statusDict = jsonDict[@"status"];
+            
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
             }
             else {
-                model.photoArray = @[@"http://img4.duitang.com/uploads/item/201307/30/20130730215610_8Tnmr.jpeg", @"http://img4.duitang.com/uploads/item/201502/28/20150228131257_LGRFB.thumb.224_0.jpeg", @"http://www.qqtu8.net/f/20151218194626_1.jpg"];
+                
+                NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                
+                NSDictionary *statusDict = jsonDict[@"status"];
+                
+                if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                    
+                    [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+                }
+                else {
+                    
+                    NSDictionary *evaDict = jsonDict[@"data"];
+                    
+                    NSArray *evaArray = evaDict[@"lists"];
+                    
+                    if (evaArray.count < kPageSize) {
+                        
+                        weakSelf.evaListView.mj_footer.state = MJRefreshStateNoMoreData;
+                    }
+                    
+                    if (evaArray.count > 0) {
+                        
+                        NSMutableArray *mEvaArray;
+                        
+                        if (weakSelf.currPage > 1) {
+                            
+                            mEvaArray = [NSMutableArray arrayWithArray:weakSelf.dataList];
+                        }
+                        else {
+                            
+                            mEvaArray = [NSMutableArray arrayWithCapacity:evaArray.count];
+                        }
+                        
+                        for (NSDictionary *dict in evaArray) {
+                            
+                            EvaluateModel *evaModel = [[EvaluateModel alloc] init];
+                            
+                            [evaModel setValueWithDict:dict];
+                            
+                            [mEvaArray addObject:evaModel];
+                        }
+                        
+                        weakSelf.dataList = [mEvaArray copy];
+                        
+                        [weakSelf.evaListView reloadData];
+                    }
+                }
             }
-            
         }
-        [tmpArray addObject:model];
-    }
-    self.dataList = [tmpArray copy];
+    }];
+}
+
+- (void)requestData
+{
+    self.currType = EvaluateType_All;
+    
+    [self refreshData];
 }
 
 - (void)initUI
 {
+    // header
+    EvaluateTabHeader *header = [[EvaluateTabHeader alloc] init];
+
+    __weak typeof(self) weakSelf = self;
+
+    header.buttonBlock = ^(EvaluateType tag) {
+
+        weakSelf.currType = tag;
+
+        [weakSelf refreshData];
+    };
+    
+    [self.view addSubview:header];
+    [header mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.equalTo(self.view);
+        make.top.equalTo(self.view).offset(1);
+        make.height.mas_equalTo(fScreen(110));
+    }];
+    
+    // tableView
     UITableView *tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     [tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
     [tableView setDataSource:self];
     [tableView setDelegate:self];
     
+    tableView.mj_header = [RefreshHeader headerWithTitle:@"下拉刷新评论" freshingTitle:@"玩命加载中..." freshBlock:^{
+        
+        [weakSelf refreshData];
+    }];
+    
+    tableView.mj_footer = [RefreshFooter footerWithTitle:@"上拉加载更多评论" uploadingTitle:@"玩命加载中..." noMoreTitle:@"木有更多啦~" uploadBlock:^{
+        
+        [weakSelf loadMoreEvaluate];
+    }];
+    
     [self.view addSubview:tableView];
+    
     [tableView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(self.view);
-        make.top.equalTo(self.view.mas_top).offset(1);
+        make.top.equalTo(header.mas_bottom).offset(1);
         make.bottom.equalTo(self.view.mas_bottom).offset(-fScreen(112));
     }];
+    
     self.evaListView = tableView;
 }
 
@@ -104,17 +227,6 @@
 {
     EvaluateModel *model = (EvaluateModel *)[self.dataList objectAtIndex:indexPath.row];
     return model.rowHeight;
-}
-
-- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
-{
-    return fScreen(110);
-}
-
-- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
-{
-    EvaluateTabHeader *header = [[EvaluateTabHeader alloc] init];
-    return header;
 }
 
 @end

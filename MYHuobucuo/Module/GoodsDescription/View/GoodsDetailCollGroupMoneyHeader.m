@@ -386,12 +386,20 @@
 // 评价
 - (void)addEvaluateView
 {
-    // 计算高度
-    CGFloat height = fScreen(80 * 2);
+    /// 计算高度
+    CGFloat height ;
     
-    for (EvaluateModel *evaModel in self.goodsModel.evaluateArray) {
+    if (self.goodsModel.evaluateArray.count > 0) {
         
-        height += evaModel.rowHeight - fScreen(10);
+        height = fScreen(80 * 2);
+        
+        for (EvaluateModel *evaModel in self.goodsModel.evaluateArray) {
+            
+            height += evaModel.rowHeight - fScreen(10);
+        }
+    }
+    else {
+        height = 1;
     }
     
     [self addSubview:self.goodsEvaluateView];

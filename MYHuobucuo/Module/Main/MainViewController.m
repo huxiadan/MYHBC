@@ -88,7 +88,6 @@
     }];
     
     // 引导页
-    DLog(@"%@", [HDUserDefaults objectForKey:cIsPlayGuideImage]);
     if ([[HDUserDefaults objectForKey:cIsPlayGuideImage] boolValue] == NO) {
     
         [self hideTabBar];

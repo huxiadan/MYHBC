@@ -16,6 +16,7 @@
     self.phoneNumber = dict[@"telephone"];
     self.isDefaultAddress = [dict[@"isdefault"] boolValue];
     
+    self.addressId = dict[@"address_id"];
     self.province = dict[@"zone"];
     self.city = dict[@"city"];
     self.area = dict[@"district"];

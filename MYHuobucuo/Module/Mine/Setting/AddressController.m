@@ -91,23 +91,6 @@
             }
         }
     }];
-    
-    // 模拟数据
-//    NSMutableArray *tmpArray = [NSMutableArray array];
-//    for (NSInteger index = 0; index < 5; index++) {
-//        AddressModel *model = [[AddressModel alloc] init];
-//        
-//        model.receivePersonName = [NSString stringWithFormat:@"厦门吴彦祖-%ld",index];
-//        model.phoneNumber = @"18695696529";
-//        model.province = @"福建省";
-//        model.city = @"厦门市";
-//        model.area = @"思明区";
-//        model.address = @"莲前街道软件园二期望海路63号";
-//        model.isDefaultAddress = index == 0 ? YES : NO;
-//        
-//        [tmpArray addObject:model];
-//    }
-//    [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
 }
 
 - (void)didReceiveMemoryWarning {

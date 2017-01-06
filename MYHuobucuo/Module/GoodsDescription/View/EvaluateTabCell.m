@@ -76,7 +76,7 @@
     [timeLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.right.equalTo(self.mas_right).offset(-fScreen(30));
         make.bottom.equalTo(nameLabel.mas_bottom);
-        make.width.mas_equalTo(fScreen(220));
+        make.width.mas_equalTo(fScreen(300));
         make.height.mas_equalTo(fScreen(24));
     }];
     self.timeLabel = timeLabel;
@@ -142,11 +142,12 @@
     [self.userNameLabel setText:[NSString stringWithFormat:@"%@",model.userName]];
     [self.userNameLabel mas_updateConstraints:^(MASConstraintMaker *make) {
         CGSize textSize = [self.userNameLabel.text sizeForFontsize:fScreen(24)];
-        make.width.mas_equalTo(textSize.width);
+        make.width.mas_equalTo(textSize.width + 1);
     }];
     
-    self.starView.starNumber = model.starNumber;
     [self.starView layoutIfNeeded];
+    
+    self.starView.starNumber = model.starNumber;
     
     [self.timeLabel setText:[NSString stringWithFormat:@"%@",model.time]];
     

@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+@class AddressModel;
+
 #define NetworkManager [NetworkRequest sharedNetworkRequest]
 
 typedef void(^FinishBlock)(id jsonData, NSError *error);
@@ -33,6 +35,9 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 
 // 获取商品的详细信息
 - (void)getGoodsInfoWithGoodsId:(NSString *)goodsId finishBlock:(FinishBlock)finishBlock;
+
+// 获取商品评价
+- (void)getGoodsEvaluateWithGoodsId:(NSString *)goodsId page:(NSUInteger)page pageSize:(NSUInteger)pageSize evaluateType:(EvaluateType)evaluateType finishBlock:(FinishBlock)finishBlock;
 
 #pragma mark
 #pragma mark - ShoppingCar
@@ -65,6 +70,17 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 // 注册
 - (void)userRegisterWithUserName:(NSString *)userName password:(NSString *)password openId:(NSString *)openId unionId:(NSString *)unionId finishBlock:(FinishBlock)finishBlock;
 
+// 获取用户信息
+- (void)getUserInfoWifhFinish:(FinishBlock)finishBlock;
+
+// 获取收藏商品列表
+- (void)getUserCollectGoodsListWithPage:(NSUInteger)page pageSize:(NSUInteger)pageSize collectionType:(CollectionGoodsType)collectionType finishBlock:(FinishBlock)finishBlock;
+
+// 收货地址新增和修改
+- (void)updateUserAddressWithModel:(AddressModel *)addressModel finishBlock:(FinishBlock)finishBlock;
+
+// 删除收货地址
+- (void)deleteUserAddressWithAddressId:(NSString *)addressId finishBlock:(FinishBlock)finishBlock;
 
 #pragma mark 
 #pragma mark - Pay

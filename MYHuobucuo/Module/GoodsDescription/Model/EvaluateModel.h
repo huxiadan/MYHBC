@@ -21,5 +21,8 @@
 @property (nonatomic, strong) NSArray *photoArray;      // 评价图片
 
 @property (nonatomic, assign) CGFloat rowHeight;        // 行高
+@property (nonatomic, assign) BOOL isNoPhotoShow;       // 不显示照片(商品详情首页使用)
+
+- (void)setValueWithDict:(NSDictionary *)dict;
 
 @end

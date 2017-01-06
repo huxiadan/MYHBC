@@ -234,15 +234,21 @@
     }
     
     // 评价
-    CGFloat evaHeight = fScreen(80 * 2);
-    
-    for (EvaluateModel *evaModel in self.goodsModel.evaluateArray) {
-
-        evaHeight += evaModel.rowHeight - fScreen(10);
+    if (self.goodsModel.evaluateArray.count > 0) {
         
+        CGFloat evaHeight = fScreen(80 * 2);
+        
+        for (EvaluateModel *evaModel in self.goodsModel.evaluateArray) {
+            
+            evaHeight += evaModel.rowHeight - fScreen(10);
+            
+        }
+        
+        viewHeight += evaHeight + fScreen(20);
     }
-    
-    viewHeight += evaHeight + fScreen(20);
+    else {
+        viewHeight -= fScreen(20);
+    }
     
     // 店铺
     viewHeight += fScreen(160 + 20);

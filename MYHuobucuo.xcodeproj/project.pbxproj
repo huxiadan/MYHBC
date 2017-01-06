@@ -383,6 +383,8 @@
 		598E46E21DD41A4000C2569E /* MainModelController.m in Sources */ = {isa = PBXBuildFile; fileRef = 598E46E11DD41A4000C2569E /* MainModelController.m */; };
 		598E46E61DD4214200C2569E /* MainModelCollHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 598E46E51DD4214200C2569E /* MainModelCollHeader.m */; };
 		598E46EA1DD424DD00C2569E /* MainModelHeaderModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 598E46E91DD424DD00C2569E /* MainModelHeaderModel.m */; };
+		5992B9901E1CF50000321B8E /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5992B98F1E1CF50000321B8E /* AssetsLibrary.framework */; };
+		5992B9921E1CF50E00321B8E /* Photos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5992B9911E1CF50E00321B8E /* Photos.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		599544141E10FF19002B76AA /* VPImageCropperViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 599544131E10FF19002B76AA /* VPImageCropperViewController.m */; };
 		599544171E123B97002B76AA /* CategoryDetailPageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 599544161E123B97002B76AA /* CategoryDetailPageController.m */; };
 		59972D191DDEAEA40028E4A2 /* PayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 59972D181DDEAEA40028E4A2 /* PayViewController.m */; };
@@ -1264,6 +1266,8 @@
 		598E46E51DD4214200C2569E /* MainModelCollHeader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainModelCollHeader.m; sourceTree = "<group>"; };
 		598E46E81DD424DD00C2569E /* MainModelHeaderModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainModelHeaderModel.h; sourceTree = "<group>"; };
 		598E46E91DD424DD00C2569E /* MainModelHeaderModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainModelHeaderModel.m; sourceTree = "<group>"; };
+		5992B98F1E1CF50000321B8E /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
+		5992B9911E1CF50E00321B8E /* Photos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Photos.framework; path = System/Library/Frameworks/Photos.framework; sourceTree = SDKROOT; };
 		599544121E10FF19002B76AA /* VPImageCropperViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VPImageCropperViewController.h; sourceTree = "<group>"; };
 		599544131E10FF19002B76AA /* VPImageCropperViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VPImageCropperViewController.m; sourceTree = "<group>"; };
 		599544151E123B97002B76AA /* CategoryDetailPageController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CategoryDetailPageController.h; sourceTree = "<group>"; };
@@ -1616,6 +1620,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5992B9921E1CF50E00321B8E /* Photos.framework in Frameworks */,
+				5992B9901E1CF50000321B8E /* AssetsLibrary.framework in Frameworks */,
 				59DD4E331E0926100097AE15 /* MessageUI.framework in Frameworks */,
 				59D1C5BD1DAF595900C5F81B /* CoreLocation.framework in Frameworks */,
 				5925FCB01D94C98000A22BD9 /* JavaScriptCore.framework in Frameworks */,
@@ -1646,6 +1652,8 @@
 		38197B84BB4A4319FC733403 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				5992B9911E1CF50E00321B8E /* Photos.framework */,
+				5992B98F1E1CF50000321B8E /* AssetsLibrary.framework */,
 				59DD4E321E09260F0097AE15 /* MessageUI.framework */,
 				59D1C5BC1DAF595900C5F81B /* CoreLocation.framework */,
 				5925FCAF1D94C98000A22BD9 /* JavaScriptCore.framework */,

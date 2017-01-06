@@ -23,4 +23,6 @@
 @property (nonatomic, assign) BOOL isSelected;      // 用于管理是否被选中进行批量处理
 @property (nonatomic, assign) BOOL isEdit;          // 是否进入编辑状态
 
+- (void)setValueWithDict:(NSDictionary *)dict;
+
 @end

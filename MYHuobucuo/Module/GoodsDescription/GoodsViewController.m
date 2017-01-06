@@ -50,6 +50,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    self.goodsId = @"13388";
+    
     [self requestData];
 }
 
@@ -76,7 +78,7 @@
 {
     __weak typeof(self) weakSelf = self;
     
-    [NetworkManager getGoodsInfoWithGoodsId:@"13388" finishBlock:^(id jsonData, NSError *error) {
+    [NetworkManager getGoodsInfoWithGoodsId:self.goodsId finishBlock:^(id jsonData, NSError *error) {
         if (error) {
             
             DLog(@"%@",error.localizedDescription);
@@ -107,24 +109,51 @@
                 
                 goodsModel.goodEvaluatePre = @"99.7%";
                 
-                NSMutableArray *evaArray = [NSMutableArray array];
-                
-                for (NSInteger index = 0; index < 3; index++) {
-                    EvaluateModel *evaModel = [[EvaluateModel alloc] init];
-                    evaModel.userName = @"东莞一条街";
-                    evaModel.starNumber = 4;
-                    evaModel.time = @"2016-6-12 14:35";
-                    evaModel.contentText = @"标准的十五字标准的十五字标准的十五字标准的十五字标准的十五字";
-                    [evaArray addObject:evaModel];
-                }
-                
-                goodsModel.shopName = @"不要钱的店";
-                
-                goodsModel.evaluateArray = [evaArray copy];
-                
-                weakSelf.goodsModel = goodsModel;
-                
-                [weakSelf initUI];
+                // 评价接口
+                [NetworkManager getGoodsEvaluateWithGoodsId:@"264" page:1 pageSize:3 evaluateType:EvaluateType_Best finishBlock:^(id jsonData, NSError *error) {
+                    
+                    if (error) {
+                        DLog(@"%@",error.localizedDescription);
+                    }
+                    else {
+                        NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                        
+                        NSDictionary *statusDict = jsonDict[@"status"];
+                        
+                        if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                            
+                            [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+                        }
+                        else {
+                            NSDictionary *evaDict = jsonDict[@"data"];
+                            
+                            NSArray *evaArray = evaDict[@"lists"];
+                            
+                            if (evaArray.count > 0) {
+                                
+                                NSMutableArray *mEvaArray = [NSMutableArray array];
+                                
+                                for (NSDictionary *dict in evaArray) {
+                                    EvaluateModel *evaModel = [[EvaluateModel alloc] init];
+                                    
+                                    evaModel.isNoPhotoShow = YES;
+                                    
+                                    [evaModel setValueWithDict:dict];
+                                    
+                                    [mEvaArray addObject:evaModel];
+                                }
+                                
+                                goodsModel.evaluateArray = [mEvaArray copy];
+                            }
+                        }
+                    }
+                    
+                    goodsModel.shopName = @"不要钱的店";
+                    
+                    weakSelf.goodsModel = goodsModel;
+                    
+                    [weakSelf initUI];
+                }];
             }
         }
     }];

@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void(^EvaluateTypeButtonClickBlock)(EvaluateHeaderTag tag);
+typedef void(^EvaluateTypeButtonClickBlock)(EvaluateType tag);
 
 @interface EvaluateTabHeader : UIView
 

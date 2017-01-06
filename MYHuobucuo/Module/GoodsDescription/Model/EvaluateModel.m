@@ -40,4 +40,26 @@
     }
 }
 
+- (void)setValueWithDict:(NSDictionary *)dict
+{
+    self.userName    = dict[@"customer_name"];
+    self.starNumber  = [dict[@"rating"] integerValue];
+    self.contentText = dict[@"text"];
+    self.time        = dict[@"date_added"];
+    
+    if (!self.isNoPhotoShow) {
+        NSString *photosString = dict[@"images"];
+        NSData *jsonPhotoData = [photosString dataUsingEncoding:NSUTF8StringEncoding];
+        NSError *error;
+        NSArray *photoArray = [NSJSONSerialization JSONObjectWithData:jsonPhotoData options:NSJSONReadingMutableContainers error:&error];
+        
+        if (!error) {
+            self.photoArray = photoArray;
+        }
+        else {
+            DLog(@"%@", error.localizedDescription);
+        }
+    }
+}
+
 @end

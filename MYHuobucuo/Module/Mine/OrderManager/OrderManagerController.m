@@ -24,6 +24,7 @@
 @property (nonatomic, strong) UIView *currItemLine;
 @property (nonatomic, strong) UITableView *orderListView;
 @property (nonatomic, strong) UIButton *currButton;
+@property (nonatomic, strong) UIView *emptyView;
 
 @property (nonatomic, assign) MineOrderType orderType;
 @property (nonatomic, assign) NSUInteger currPage;
@@ -77,6 +78,13 @@
         make.left.right.bottom.equalTo(self.view);
         make.top.equalTo(self.itemView.mas_bottom);
     }];
+    
+    [self.view addSubview:self.emptyView];
+    [self.emptyView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.bottom.equalTo(self.view);
+        make.top.equalTo(self.titleView.mas_bottom);
+    }];
+    [self.emptyView setHidden:YES];
     
     // 加载数据
     [self refreshListDataWithOrderType:MineOrderType_WaitPay];
@@ -401,6 +409,27 @@
         }];
     }
     return _orderListView;
+}
+
+- (UIView *)emptyView
+{
+    if (!_emptyView) {
+        UIView *bgView = [[UIView alloc] init];
+        [bgView setBackgroundColor:self.view.backgroundColor];
+        
+        NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"img_dingdan_kong@3x.png" ofType:nil];
+        UIImageView *emptyImageView = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imagePath]];
+        [bgView addSubview:emptyImageView];
+        [emptyImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.height.mas_equalTo(fScreen(240));
+            make.width.mas_equalTo(fScreen(298));
+            make.top.equalTo(bgView.mas_top).offset(fScreen(220));
+            make.centerX.equalTo(bgView.mas_centerX);
+        }];
+        
+        _emptyView = bgView;
+    }
+    return _emptyView;
 }
 
 @end

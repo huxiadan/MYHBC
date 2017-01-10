@@ -21,17 +21,18 @@
 @interface ShoppingCarViewController () <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) UIView *titleView;
-@property (nonatomic, strong) UIButton *editButton;         // 编辑按钮
+@property (nonatomic, strong) UIButton *editButton;          // 编辑按钮
 @property (nonatomic, strong) UITableView *shopCarListView;
-@property (nonatomic, strong) UIView *bottomView;           // 底部付款视图
-@property (nonatomic, strong) UIButton *selectAllButton;    // 全选按钮
-@property (nonatomic, strong) UILabel *payNumberLabel;      // 共计
-@property (nonatomic, strong) UILabel *payMoneyLabel;       // 总价
-@property (nonatomic, strong) UIButton *payButton;          // 付款按钮/全部编辑删除按钮
+@property (nonatomic, strong) UIView *bottomView;            // 底部付款视图
+@property (nonatomic, strong) UIButton *selectAllButton;     // 全选按钮
+@property (nonatomic, strong) UILabel *payNumberLabel;       // 共计
+@property (nonatomic, strong) UILabel *payMoneyLabel;        // 总价
+@property (nonatomic, strong) UIButton *payButton;           // 付款按钮/全部编辑删除按钮
+@property (nonatomic, strong) UIView *emptyView;             // 空购物车视图
 
 @property (nonatomic, strong) ShoppingCarModel *shopCarModel;// 购物车模型
-@property (nonatomic, assign) BOOL isShowTabBar;              // 是否显示 tabbar. 适配两种情况下的购物车
-@property (nonatomic, assign) BOOL isEditAll;               // 全部 cell 进入编辑状态
+@property (nonatomic, assign) BOOL isShowTabBar;             // 是否显示 tabbar. 适配两种情况下的购物车
+@property (nonatomic, assign) BOOL isEditAll;                // 全部 cell 进入编辑状态
 
 @end
 
@@ -48,10 +49,12 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    [self initUI];
 
     [self requestData];
+    
+    [self initUI];
+    
+//    [self emptyData];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -130,6 +133,18 @@
 - (void)loadMoreShoppingCarDataWithPage:(NSInteger)page
 {}
 
+- (void)emptyData
+{
+    [self.editButton setHidden:YES];
+    [self.emptyView setHidden:NO];
+}
+
+- (void)hasData
+{
+    [self.editButton setHidden:NO];
+    [self.emptyView setHidden:YES];
+}
+
 - (void)initUI
 {
     [self.view setBackgroundColor:viewControllerBgColor];
@@ -149,6 +164,13 @@
     }];
 
     [self addBottomView];
+    
+    [self.view addSubview:self.emptyView];
+    [self.emptyView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.bottom.equalTo(self.view);
+        make.top.equalTo(self.titleView.mas_bottom);
+    }];
+    [self.emptyView setHidden:YES];
 }
 
 - (void)addBottomView
@@ -281,6 +303,9 @@
         make.height.mas_equalTo(textSize.height);
         make.width.mas_equalTo(textSize.width + fScreen(28)*2);
     }];
+    
+    self.editButton = editButton;
+    
     
     UIView *lineView = [[UIView alloc] init];
     [lineView setBackgroundColor:viewControllerBgColor];
@@ -438,6 +463,27 @@
         _shopCarListView.separatorStyle = UITableViewCellSeparatorStyleNone;
     }
     return _shopCarListView;
+}
+
+- (UIView *)emptyView
+{
+    if (!_emptyView) {
+        UIView *bgView = [[UIView alloc] init];
+        [bgView setBackgroundColor:self.view.backgroundColor];
+        
+        NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"img_gouwuche_kong@3x.png" ofType:nil];
+        UIImageView *emptyImageView = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imagePath]];
+        [bgView addSubview:emptyImageView];
+        [emptyImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.height.mas_equalTo(fScreen(240));
+            make.width.mas_equalTo(fScreen(298));
+            make.top.equalTo(bgView.mas_top).offset(fScreen(220));
+            make.centerX.equalTo(bgView.mas_centerX);
+        }];
+        
+        _emptyView = bgView;
+    }
+    return _emptyView;
 }
 
 #pragma mark - Setter

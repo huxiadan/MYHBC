@@ -18,4 +18,6 @@
 @property (nonatomic, strong) ShareModel *shareModel;   // 分享
 @property (nonatomic, assign) BOOL isCollect;           // 收藏
 
+- (void)setValueWithDict:(NSDictionary *)dict;
+
 @end

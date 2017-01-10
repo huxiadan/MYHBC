@@ -9,6 +9,13 @@
 #import "GoodsDetailBottomView.h"
 #import "HDButton.h"
 #import <Masonry.h>
+#import "LoginViewController.h"
+
+@interface GoodsDetailBottomView () <UIAlertViewDelegate>
+
+@property (nonatomic, strong) HDButton *collectButton;
+
+@end
 
 @implementation GoodsDetailBottomView
 
@@ -63,6 +70,7 @@
             make.width.mas_equalTo(fScreen(46 + 20*2));
             make.left.equalTo(toShopButton.mas_right).offset(fScreen(72 - 20*2));
         }];
+        self.collectButton = collectButton;
         
         // 加入购物车
         UIButton *addShoppingCarButton = [[UIButton alloc] init];
@@ -115,10 +123,17 @@
 // 收藏
 - (void)collectButtonClick:(UIButton *)sender
 {
+    // 时候登录
+    if (![AppUserManager hasUser]) {
+        UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:nil message:@"亲,您还未登录~" delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"去登录", nil];
+        [alertView show];
+        return ;
+    }
+    
     sender.selected = !sender.isSelected;
     
     if (self.collectBlock) {
-        self.collectBlock();
+        self.collectBlock(sender.isSelected);
     }
 }
 
@@ -138,5 +153,21 @@
     }
 }
 
+#pragma mark - AlertView delegate
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
+{
+    if (buttonIndex == 1) {
+        LoginViewController *loginVC = [[LoginViewController alloc] init];
+        [self.currNavigation pushViewController:loginVC animated:YES];
+    }
+}
+
+#pragma mark - Setter
+- (void)setIsCollected:(BOOL)isCollected
+{
+    _isCollected = isCollected;
+    
+    self.collectButton.selected = isCollected;
+}
 
 @end

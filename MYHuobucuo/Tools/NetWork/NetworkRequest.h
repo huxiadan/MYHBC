@@ -39,6 +39,12 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 // 获取商品评价
 - (void)getGoodsEvaluateWithGoodsId:(NSString *)goodsId page:(NSUInteger)page pageSize:(NSUInteger)pageSize evaluateType:(EvaluateType)evaluateType finishBlock:(FinishBlock)finishBlock;
 
+// 商品收藏
+- (void)userCollectGoodsWithGoodsId:(NSString *)goodsId shopId:(NSString *)shopId finishBlock:(FinishBlock)finishBlock;
+
+// 店铺关注
+- (void)userCollectShopWithShopId:(NSString *)shopId storeId:(NSString *)storeId finishBlock:(FinishBlock)finishBlock;
+
 #pragma mark
 #pragma mark - ShoppingCar
 // 获取购物车数据
@@ -75,6 +81,9 @@ typedef void(^FinishBlock)(id jsonData, NSError *error);
 
 // 获取收藏商品列表
 - (void)getUserCollectGoodsListWithPage:(NSUInteger)page pageSize:(NSUInteger)pageSize collectionType:(CollectionGoodsType)collectionType finishBlock:(FinishBlock)finishBlock;
+
+// 获取关注店铺列表
+- (void)getUserCollectStoreListWithPage:(NSUInteger)page pageSize:(NSUInteger)pageSize finishBlock:(FinishBlock)finishBlock;
 
 // 收货地址新增和修改
 - (void)updateUserAddressWithModel:(AddressModel *)addressModel finishBlock:(FinishBlock)finishBlock;

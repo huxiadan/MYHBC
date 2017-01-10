@@ -22,6 +22,10 @@
     self.area = dict[@"district"];
     self.address = dict[@"address"];
     self.postCode = dict[@"postcode"];
+    
+    self.provinceId = dict[@"zone_id"];
+    self.cityId = dict[@"city_id"];
+    self.areaId = dict[@"district_id"];
 }
 
 @end

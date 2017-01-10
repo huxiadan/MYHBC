@@ -11,15 +11,15 @@
 
 @interface AddressPickerView () <UIPickerViewDataSource, UIPickerViewDelegate>
 
-@property (nonatomic, strong) NSArray *provinceNameArray;   // 省份名称数组
-@property (nonatomic, strong) NSArray *cityNameArray;       // 城市名称数组
-@property (nonatomic, strong) NSArray *areaNameArray;       // 地区名称数组
+@property (nonatomic, strong) NSArray<HDAreaModel *> *provinceNameArray;   // 省份名称数组
+@property (nonatomic, strong) NSArray<HDAreaModel *> *cityNameArray;       // 城市名称数组
+@property (nonatomic, strong) NSArray<HDAreaModel *> *areaNameArray;       // 地区名称数组
 
 @property (nonatomic, strong) NSArray *provinceArray;       // 省份数组(包含城市/地区)
 @property (nonatomic, strong) NSArray *cityArray;           // 城市数组(包含地区)
 
 
-@property (nonatomic, copy) NSString *currentString;    // 当前 picker 的文字
+@property (nonatomic, copy)  HDAreaModel *currAreaModel;    // 当前 picker 的模型
 
 @property (nonatomic, strong) UIPickerView *picker;
 
@@ -47,7 +47,10 @@
 
     NSMutableArray *tmpProvArray = [NSMutableArray array];
     for (NSDictionary *provDict in areaArray) {
-        [tmpProvArray addObject:[NSString stringWithFormat:@"%@", provDict[@"name"]]];
+        NSArray *provCodeArray = [[NSString stringWithFormat:@"%@", provDict[@"name"]] componentsSeparatedByString:@","];
+        HDAreaModel *areaModel = [[HDAreaModel alloc] init];
+        [areaModel setValueWithArray:provCodeArray];
+        [tmpProvArray addObject:areaModel];
     }
 
     self.provinceNameArray = [tmpProvArray copy];
@@ -59,17 +62,25 @@
 }
 
 // 根据省份获取城市数组
-- (void)getCityArrayWithProvince:(NSString *)provinceName
+- (void)getCityArrayWithProvince:(HDAreaModel *)provinceName
 {
     // 遍历省份
     for (NSDictionary *dict in self.provinceArray) {
-        if ([provinceName isEqualToString:[NSString stringWithFormat:@"%@", dict[@"name"]]]) {
+        
+        NSString *compareName = [NSString stringWithFormat:@"%@", dict[@"name"]];
+        NSArray *cmpArray = [compareName componentsSeparatedByString:@","];
+        
+        if ([provinceName.areaName isEqualToString:[cmpArray objectAtIndex:1]]) {
             NSArray *cityArray = dict[@"sub"];
             
             // 遍历该省份的城市数组
             NSMutableArray *tmpCityArray = [NSMutableArray arrayWithCapacity:cityArray.count];
             for (NSDictionary *cityDict in cityArray) {
-                [tmpCityArray addObject:[NSString stringWithFormat:@"%@",cityDict[@"name"]]];
+                
+                HDAreaModel *model = [[HDAreaModel alloc] init];
+                [model setValueWithArray:[[NSString stringWithFormat:@"%@",cityDict[@"name"]] componentsSeparatedByString:@","]];
+                
+                [tmpCityArray addObject:model];
             }
             self.cityNameArray = [tmpCityArray copy];
             self.cityArray = cityArray;
@@ -79,11 +90,27 @@
 }
 
 // 根据城市获取地区数组
-- (void)getAreaArrayWithCity:(NSString *)cityName
+- (void)getAreaArrayWithCity:(HDAreaModel *)cityName
 {
     for (NSDictionary *cityDict in self.cityArray) {
-        if ([cityName isEqualToString:[NSString stringWithFormat:@"%@",cityDict[@"name"]]]) {
-            self.areaNameArray = cityDict[@"sub"];
+        
+        NSString *compareName = [NSString stringWithFormat:@"%@", cityDict[@"name"]];
+        NSArray *cmpArray = [compareName componentsSeparatedByString:@","];
+        
+        if ([cityName.areaName isEqualToString:[cmpArray objectAtIndex:1]]) {
+            
+            NSArray *tmpAreaArray = cityDict[@"sub"];
+            NSMutableArray *mTmpAreaArray = [NSMutableArray arrayWithCapacity:tmpAreaArray.count];
+            
+            for (NSString *areaString in tmpAreaArray) {
+                
+                NSArray *array = [areaString componentsSeparatedByString:@","];
+                HDAreaModel *model = [[HDAreaModel alloc] init];
+                [model setValueWithArray:array];
+                [mTmpAreaArray addObject:model];
+            }
+            
+            self.areaNameArray = [mTmpAreaArray copy];
             return;
         }
     }
@@ -155,7 +182,7 @@
     }];
 }
 
-- (void)showWithType:(AddressDataPickerTag)type title:(NSString *)title
+- (void)showWithType:(AddressDataPickerTag)type title:(HDAreaModel *)title
 {
     [self setSelectedRowWithType:type title:title];
     
@@ -166,21 +193,26 @@
     }];
 }
 
-- (void)setSelectedRowWithType:(AddressDataPickerTag)type title:(NSString *)title
+- (void)setSelectedRowWithType:(AddressDataPickerTag)type title:(HDAreaModel *)title
 {
     self.pickerTag = type;
     [self.picker reloadAllComponents];
     
-    if (title.length > 0) {
-        self.currentString = title;
+    if (title.areaName.length > 0) {
+        self.currAreaModel = title;
         
         switch (type) {
             case AddressDataPickerTag_Provience:
             default:
+            {
                 [self setPickerSelectWithTitle:title array:self.provinceNameArray];
                 // 城市/地区的数据源更改
                 [self getCityArrayWithProvince:title];
-                [self getAreaArrayWithCity:[self.cityArray[0] objectForKey:@"name"]];
+                
+                HDAreaModel *model = [[HDAreaModel alloc] init];
+                [model setValueWithArray:[[self.cityArray[0] objectForKey:@"name"] componentsSeparatedByString:@","]];
+                [self getAreaArrayWithCity:model];
+            }
                 break;
             case AddressDataPickerTag_City:
                 [self setPickerSelectWithTitle:title array:self.cityNameArray];
@@ -195,27 +227,27 @@
 }
 
 
-- (void)setinitailData:(NSString *)provinceName city:(NSString *)cityName area:(NSString *)areaName
+- (void)setinitailData:(HDAreaModel *)provinceName city:(HDAreaModel *)cityName area:(HDAreaModel *)areaName
 {
-    if (provinceName) {
+    if (provinceName.areaName.length > 0) {
         [self setSelectedRowWithType:AddressDataPickerTag_Provience title:provinceName];
         
-        if (cityName) {
+        if (cityName.areaName.length > 0) {
             [self setSelectedRowWithType:AddressDataPickerTag_City title:cityName];
             
-            if (areaName) {
+            if (areaName.areaName.length > 0) {
                 [self setSelectedRowWithType:AddressDataPickerTag_Area title:areaName];
             }
         }
     }
 }
 
-- (void)setPickerSelectWithTitle:(NSString *)title array:(NSArray *)array
+- (void)setPickerSelectWithTitle:(HDAreaModel *)title array:(NSArray *)array
 {
     NSInteger index = 0;
     
-    for (NSString *subTitle in array) {
-        if ([title isEqualToString:subTitle]) {
+    for (HDAreaModel *subTitle in array) {
+        if ([title.areaName isEqualToString:subTitle.areaName]) {
             [self.picker selectRow:index inComponent:0 animated:NO];
             break;
         }
@@ -239,29 +271,29 @@
     // 更改数据源
     if (self.pickerTag == AddressDataPickerTag_Provience) {
         // 更新城市和地区数组
-        [self getCityArrayWithProvince:self.currentString];
+        [self getCityArrayWithProvince:self.currAreaModel];
         // 地区默认根据第一个城市获取
         [self getAreaArrayWithCity:self.cityNameArray[0]];
     }
     else if (self.pickerTag == AddressDataPickerTag_City) {
         // 更新地区数组
-        [self getAreaArrayWithCity:self.currentString];
+        [self getAreaArrayWithCity:self.currAreaModel];
     }
     
-    if (self.currentString.length == 0) {
+    if (self.currAreaModel.areaName.length == 0) {
         if (self.pickerTag == AddressDataPickerTag_Provience) {
-            self.currentString = self.provinceNameArray[0];
+            self.currAreaModel = self.provinceNameArray[0];
         }
         else if (self.pickerTag == AddressDataPickerTag_City) {
-            self.currentString = self.cityNameArray[0];
+            self.currAreaModel = self.cityNameArray[0];
         }
         else if (self.pickerTag == AddressDataPickerTag_Area) {
-            self.currentString = self.areaNameArray[0];
+            self.currAreaModel = self.areaNameArray[0];
         }
     }
     
     if (self.titleBlock) {
-        self.titleBlock(self.currentString, self.pickerTag);
+        self.titleBlock(self.currAreaModel, self.pickerTag);
     }
     
     [self hide];
@@ -291,18 +323,22 @@
 
 - (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger)row forComponent:(NSInteger)component
 {
+    HDAreaModel *model = nil;
+    
     switch (self.pickerTag) {
         case AddressDataPickerTag_Provience:
         default:
-            return [self.provinceNameArray objectAtIndex:row];
+            model = [self.provinceNameArray objectAtIndex:row];
             break;
         case AddressDataPickerTag_City:
-            return [self.cityNameArray objectAtIndex:row];
+            model = [self.cityNameArray objectAtIndex:row];
             break;
         case AddressDataPickerTag_Area:
-            return [self.areaNameArray objectAtIndex:row];
+            model = [self.areaNameArray objectAtIndex:row];
             break;
     }
+    
+    return model.areaName;
 }
 
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component
@@ -310,16 +346,18 @@
     switch (self.pickerTag) {
         case AddressDataPickerTag_Provience:
         default:
-            self.currentString = [self.provinceNameArray objectAtIndex:row];
+            self.currAreaModel = [self.provinceNameArray objectAtIndex:row];
             break;
         case AddressDataPickerTag_City:
-            self.currentString = [self.cityNameArray objectAtIndex:row];
+            self.currAreaModel = [self.cityNameArray objectAtIndex:row];
             break;
         case AddressDataPickerTag_Area:
-            self.currentString = [self.areaNameArray objectAtIndex:row];
+            self.currAreaModel = [self.areaNameArray objectAtIndex:row];
             break;
     }
 }
+
+#pragma mark - Getter
 
 - (AddressDataPickerTag)pickerTag
 {
@@ -328,5 +366,15 @@
     }
     return _pickerTag;
 }
+
+//- (NSArray<HDAreaModel *> *)cityNameArray
+//{
+//    if (!_cityNameArray) {
+//        _cityNameArray = self getCityArrayWithProvince:
+//    }
+//    return _cityNameArray;
+//}
+
+
 
 @end

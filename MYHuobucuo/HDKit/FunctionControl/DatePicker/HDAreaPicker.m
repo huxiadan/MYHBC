@@ -7,6 +7,7 @@
 //
 
 #import "HDAreaPicker.h"
+#import "HDAreaModel.h"
 
 #define HDPickerButtonWidth  60
 #define HDPickerButtonHeight 40

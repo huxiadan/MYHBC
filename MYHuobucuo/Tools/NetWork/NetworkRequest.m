@@ -150,6 +150,9 @@
     
     NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
     [postDict setObject:signString forKey:kParamKeySign];
+    if ([AppUserManager hasUser]) {
+        [postDict setObject:[HDUserDefaults objectForKey:cUserid] forKey:kParamKeyCustomerId];
+    }
     
     NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=product&c=reader&a=getProductInfo", kNetworkRequestHeader];
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
@@ -176,6 +179,48 @@
     }
     
     NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=product&c=reader&a=listProductReviews", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 商品收藏
+- (void)userCollectGoodsWithGoodsId:(NSString *)goodsId shopId:(NSString *)shopId finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               @"productId":goodsId,
+                               @"storeId":shopId,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=favorite&a=saveFavoriteByProduct", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 店铺关注
+- (void)userCollectShopWithShopId:(NSString *)shopId storeId:(NSString *)storeId finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               @"shopId":shopId,
+                               @"storeId":storeId,
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@<#interface#>", kNetworkRequestHeader];
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
@@ -290,7 +335,28 @@
     [postDict setObject:[NSNumber numberWithInteger:pageSize] forKey:@"size"];
     [postDict setObject:[NSNumber numberWithInteger:collectionType] forKey:@"status"];
     
-    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=reader&a=listFavorite", kNetworkRequestHeader];
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=favorite&a=listFavorite", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 获取关注店铺列表
+- (void)getUserCollectStoreListWithPage:(NSUInteger)page pageSize:(NSUInteger)pageSize finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    [postDict setObject:[NSNumber numberWithInteger:page] forKey:@"page"];
+    [postDict setObject:[NSNumber numberWithInteger:pageSize] forKey:@"size"];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=user&c=favorite&a=listAttention", kNetworkRequestHeader];
     [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
@@ -305,9 +371,10 @@
                                @"shippingName":addressModel.receivePersonName,
                                @"telephone":addressModel.phoneNumber,
                                @"address":addressModel.address,
-                               @"zoneId":addressModel.province,
-                               @"cityId":addressModel.city,
-                               @"districtId":addressModel.area,
+                               @"zoneId":addressModel.provinceId,
+                               @"cityId":addressModel.cityId,
+                               @"districtId":addressModel.areaId,
+                               @"isdefault":[NSNumber numberWithBool:addressModel.isDefaultAddress],
                                @"postcode":@"",
                                @"note":@"",
                                kParamKeyTimestamp:[NSNumber numberWithInteger:time]

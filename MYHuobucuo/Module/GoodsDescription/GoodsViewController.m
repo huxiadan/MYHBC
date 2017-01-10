@@ -174,6 +174,8 @@
     [self addTitleView];
     
     self.bottomView = [[GoodsDetailBottomView alloc] init];
+    self.bottomView.currNavigation = self.navigationController;
+    self.bottomView.isCollected = self.goodsModel.isCollected;
     
     __weak typeof(self) weakSelf = self;
     self.bottomView.payBlock = ^() {
@@ -202,6 +204,38 @@
     
     self.bottomView.addShopCarBlock = ^ () {
         [MYProgressHUD showAlertWithMessage:@"添加购物车成功~"];
+    };
+    
+    self.bottomView.collectBlock = ^(BOOL isCollected) {
+
+        if (isCollected) {
+            // 收藏
+            weakSelf.goodsModel.isCollected = YES;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [NetworkManager userCollectGoodsWithGoodsId:weakSelf.goodsModel.goodsId shopId:weakSelf.goodsModel.shopId finishBlock:^(id jsonData, NSError *error) {
+                    if (error) {
+                        NSLog(@"%@", error.localizedDescription);
+                    }
+                    else {
+                        NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                        NSDictionary *statusDict = jsonDict[@"status"];
+                        if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                            [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+                        }
+                        else {
+                            [MYProgressHUD showAlertWithMessage:@"收藏成功~"];
+                        }
+                    }
+                }];
+            });
+        }
+        else {
+            // 取消收藏
+            weakSelf.goodsModel.isCollected = NO;
+            
+            
+        }
     };
     
     [self.view addSubview:self.bottomView];

@@ -10,11 +10,15 @@
 #import <Masonry.h>
 #import "ShareView.h"
 #import "CollShopCell.h"
+#import "NetworkRequest.h"
+
+#define kPageSize 15
 
 @interface CollectionShopController () <UITableViewDataSource, UITableViewDelegate>
 
 @property (nonatomic, strong) UIView *titleView;
 @property (nonatomic, strong) UITableView *shopListView;
+@property (nonatomic, strong) UIView *emptyView;
 
 @property (nonatomic, strong) NSArray *dataList;
 
@@ -46,23 +50,68 @@
 - (void)requestData
 {
     // 模拟数据
-    NSMutableArray *tmpArray = [NSMutableArray array];
-    for (NSInteger index = 0; index< 10; index++) {
-        CollShopModel *model = [[CollShopModel alloc] init];
-        model.shopName = @"厦门老干妈专卖店";
-        if (index%3 == 0) {
-            model.iconType = ShopIconType_Brand;
-        }
-        else if (index == 5) {
-            model.iconType = ShopIconType_Personal;
+//    NSMutableArray *tmpArray = [NSMutableArray array];
+//    for (NSInteger index = 0; index< 10; index++) {
+//        CollShopModel *model = [[CollShopModel alloc] init];
+//        model.shopName = @"厦门老干妈专卖店";
+//        if (index%3 == 0) {
+//            model.iconType = ShopIconType_Brand;
+//        }
+//        else if (index == 5) {
+//            model.iconType = ShopIconType_Personal;
+//        }
+//        else {
+//            model.iconType = ShopIconType_None;
+//        }
+//        
+//        [tmpArray addObject:model];
+//    }
+//    self.dataList = [tmpArray copy];
+    
+    [MYProgressHUD showWaitingViewWithMessage:@"加载中..."];
+    
+    __weak typeof(self) weakSelf = self;
+    
+    [NetworkManager getUserCollectStoreListWithPage:1 pageSize:kPageSize finishBlock:^(id jsonData, NSError *error) {
+        
+        [MYProgressHUD dismissMessageView];
+        
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
         }
         else {
-            model.iconType = ShopIconType_None;
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            NSDictionary *statusDict = jsonDict[@"status"];
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                NSDictionary *dataDict = jsonDict[@"data"];
+                NSArray *dataArray = [dataDict objectForKey:@"lists"];
+                if (dataArray.count > 0) {
+                    
+                    NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity:dataArray.count];
+                    
+                    for (NSDictionary *dict in dataArray) {
+                        CollShopModel *shopModel = [[CollShopModel alloc] init];
+                        [shopModel setValueWithDict:dict];
+                        
+                        [tmpArray addObject:shopModel];
+                    }
+                    
+                    weakSelf.dataList = [tmpArray copy];
+                    
+                    [weakSelf.shopListView reloadData];
+                    
+                    [weakSelf.emptyView setHidden:YES];
+                }
+                else {
+                    
+                    [weakSelf.emptyView setHidden:NO];
+                }
+            }
         }
-        
-        [tmpArray addObject:model];
-    }
-    self.dataList = [tmpArray copy];
+    }];
 }
 
 - (void)initUI
@@ -76,6 +125,35 @@
         make.left.right.bottom.equalTo(self.view);
         make.top.equalTo(self.titleView.mas_bottom).offset(fScreen(20));
     }];
+    
+    [self.view addSubview:self.emptyView];
+    [self.emptyView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.bottom.equalTo(self.view);
+        make.top.equalTo(self.titleView.mas_bottom);
+    }];
+    [self.emptyView setHidden:YES];
+}
+
+#pragma mark - Getter
+- (UIView *)emptyView
+{
+    if (!_emptyView) {
+        UIView *emptyView = [[UIView alloc] init];
+        [emptyView setBackgroundColor:self.view.backgroundColor];
+        
+        NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"img_dianpu_kong@3x" ofType:nil];
+        UIImageView *emptyImageView = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imagePath]];
+        [emptyView addSubview:emptyImageView];
+        [emptyImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.height.mas_equalTo(fScreen(240));
+            make.width.mas_equalTo(fScreen(298));
+            make.top.equalTo(emptyView).offset(fScreen(220));
+            make.centerX.equalTo(emptyView.mas_centerX);
+        }];
+        
+        _emptyView = emptyView;
+    }
+    return _emptyView;
 }
 
 #pragma mark - tableView dataSource & delegate

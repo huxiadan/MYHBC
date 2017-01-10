@@ -17,9 +17,9 @@
     self.goodsPrice = dict[@"sale_price"];
     self.marketPrice = dict[@"price"];
     self.commission = dict[@"commission"];
-    self.specShowImage = dict[@"image"];
-    
+    self.specShowImage = dict[@"image"];    
     self.shopId = dict[@"store_id"];
+    self.isCollected = [dict[@"favorite"] boolValue];
     
     // 商品轮播图
     NSArray *imageList = dict[@"imageList"];

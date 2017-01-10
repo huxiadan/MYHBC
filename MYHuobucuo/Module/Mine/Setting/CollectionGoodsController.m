@@ -24,6 +24,8 @@
 @property (nonatomic, strong) UIButton *invalidButton;      // 失效的商品按钮
 
 @property (nonatomic, strong) UIView *editView;             // 编辑状态显示的底部视图
+@property (nonatomic, strong) UIButton *editButton;
+@property (nonatomic, strong) UIView *emptyView;
 
 @property (nonatomic, strong) UITableView *listView;
 @property (nonatomic, strong) NSArray *dataList;
@@ -100,6 +102,11 @@
                     weakSelf.dataList = [collTmpArray copy];
                     
                     [weakSelf.listView reloadData];
+                    
+                    [weakSelf hasData];
+                }
+                else {
+                    [weakSelf emptyData];
                 }
             }
         }
@@ -177,6 +184,26 @@
         make.left.right.bottom.equalTo(self.view);
         make.height.mas_equalTo(fScreen(98));
     }];
+    
+    
+    [self.view addSubview:self.emptyView];
+    [self.emptyView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.right.bottom.equalTo(self.view);
+        make.top.equalTo(self.topItemView.mas_bottom);
+    }];
+    [self.emptyView setHidden:YES];
+}
+
+- (void)emptyData
+{
+    [self.editButton setEnabled:NO];
+    [self.emptyView setHidden:NO];
+}
+
+- (void)hasData
+{
+    [self.editButton setEnabled:YES];
+    [self.emptyView setHidden:YES];
 }
 
 - (void)addTopItemView
@@ -210,6 +237,8 @@
         make.top.bottom.right.equalTo(itemView);
         make.width.mas_equalTo(fScreen(116));
     }];
+    
+    self.editButton = editButton;
     
     UIView *lineView2 = [[UIView alloc] init];
     [lineView2 setBackgroundColor:viewControllerBgColor];
@@ -510,6 +539,27 @@
         [_batchDeleteButton addTarget:self action:@selector(invBatchDeleteButtonClick:) forControlEvents:UIControlEventTouchUpInside];
     }
     return _batchDeleteButton;
+}
+
+- (UIView *)emptyView
+{
+    if (!_emptyView) {
+        UIView *bgView = [[UIView alloc] init];
+        [bgView setBackgroundColor:self.view.backgroundColor];
+        
+        NSString *imagePath = [[NSBundle mainBundle] pathForResource:@"img_shangpin_kong@3x.png" ofType:nil];
+        UIImageView *emptyImageView = [[UIImageView alloc] initWithImage:[UIImage imageWithContentsOfFile:imagePath]];
+        [bgView addSubview:emptyImageView];
+        [emptyImageView mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.height.mas_equalTo(fScreen(240));
+            make.width.mas_equalTo(fScreen(298));
+            make.top.equalTo(bgView.mas_top).offset(fScreen(220));
+            make.centerX.equalTo(bgView.mas_centerX);
+        }];
+        
+        _emptyView = bgView;
+    }
+    return _emptyView;
 }
 
 @end

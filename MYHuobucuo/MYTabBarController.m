@@ -88,7 +88,7 @@
 
 - (void)setTabBarItemValue:(NSString *)value index:(NSInteger)index
 {
-    [self.tabBar setBadgValueWithIndex:index number:value backgroundColor:[UIColor redColor] textColor:[UIColor whiteColor]];
+    [self.tabBar setBadgValueWithIndex:index number:value backgroundColor:HexColor(0xe44a62) textColor:[UIColor whiteColor]];
 }
 
 #pragma mark - life cyele
@@ -137,6 +137,8 @@
 
 - (void)setTabBarItemsFontNormalColor:(UIColor *)color items:(NSArray *)items
 {
+    [self.tabBar setTintColor:color];
+    
     for (UITabBarItem *item in items) {
         [item setTitleTextAttributes:@{NSForegroundColorAttributeName:color} forState:UIControlStateNormal];
     }
@@ -144,6 +146,8 @@
 
 - (void)setTabBarItemsFontSelectColor:(UIColor *)color items:(NSArray *)items
 {
+    [self.tabBar setTintColor:color];
+    
     for (UITabBarItem *item in items) {
         [item setTitleTextAttributes:@{NSForegroundColorAttributeName:color} forState:UIControlStateSelected];
     }

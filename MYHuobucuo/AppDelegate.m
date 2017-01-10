@@ -86,17 +86,17 @@
 - (void)initAPPViewControllers
 {
     MainViewController *mainViewController = [[MainViewController alloc] init];
-    UINavigationController *mainNav = [self navControllerWithController:mainViewController title:@"首页" image:nil highlightImage:nil];
+    UINavigationController *mainNav = [self navControllerWithController:mainViewController title:@"首页" image:[UIImage imageNamed:@"icon_item_shouye_n"] highlightImage:[UIImage imageNamed:@"icon_item_shouye_h"] ];
     
     CategoryViewController *twoViewController = [[CategoryViewController alloc] init];
-    UINavigationController *twoNav = [self navControllerWithController:twoViewController title:@"分类" image:nil highlightImage:nil];
+    UINavigationController *twoNav = [self navControllerWithController:twoViewController title:@"分类" image:[UIImage imageNamed:@"icon_class_n"] highlightImage:[UIImage imageNamed:@"icon_class_h"]];
     
     ShoppingCarViewController *threeViewController = [[ShoppingCarViewController alloc] initWithShowTabBar:YES];
-    UINavigationController *threeNav = [self navControllerWithController:threeViewController title:@"购物车" image:nil
-                                                          highlightImage:nil];
+    UINavigationController *threeNav = [self navControllerWithController:threeViewController title:@"购物车" image:[UIImage imageNamed:@"icon_gouwuche_n"]
+                                                          highlightImage:[UIImage imageNamed:@"icon_gouwuche_h"]];
     
     MineViewController *fourViewController = [[MineViewController alloc] init];
-    UINavigationController *fourNav = [self navControllerWithController:fourViewController title:@"我的" image:nil highlightImage:nil];
+    UINavigationController *fourNav = [self navControllerWithController:fourViewController title:@"我" image:[UIImage imageNamed:@"icon_me_n"] highlightImage:[UIImage imageNamed:@"icon_me_h"]];
     
 //    PartnetViewController *fiveViewController = [[PartnetViewController alloc] init];
 //    [fiveViewController.view setBackgroundColor:[UIColor yellowColor]];
@@ -111,9 +111,9 @@
     [tabBarController setViewControllers:@[mainNav, twoNav, threeNav, fourNav]];
     [tabBarController setAllChilControllersArray:@[mainNav, twoNav, threeNav, fourNav]];//, fiveNav, sixNav]];
     
-    [tabBarController setItemFontNormalColor:[UIColor blueColor]];
-    [tabBarController setItemFontSelectColor:[UIColor redColor]];
-    [tabBarController setItemFontSize:17.f];
+    [tabBarController setItemFontNormalColor:HexColor(0x666666)];
+    [tabBarController setItemFontSelectColor:HexColor(0xe44a62)];
+    [tabBarController setItemFontSize:12.f];
     
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     [self.window setRootViewController:tabBarController];

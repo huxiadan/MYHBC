@@ -10,11 +10,14 @@
 
 typedef void(^ServiceButtonClickBlock)();
 typedef void(^ToShopButtonClickBlock)();
-typedef void(^CollectButtonClickBlock)();
+typedef void(^CollectButtonClickBlock)(BOOL isCollected);
 typedef void(^AddToShopCarButtonClickBlock)();
 typedef void(^PayButtonClickBlock)();
 
 @interface GoodsDetailBottomView : UIView
+
+@property (nonatomic, strong) UINavigationController *currNavigation;
+@property (nonatomic, assign) BOOL isCollected;
 
 @property (nonatomic, copy) ServiceButtonClickBlock serviceBlock;
 @property (nonatomic, copy) ToShopButtonClickBlock toShopBlock;

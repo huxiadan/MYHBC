@@ -19,6 +19,7 @@
 @property (nonatomic, copy) NSArray *goodsImageURLArray;    // 图片地址
 @property (nonatomic, copy) NSString *goodsId;              // ID
 @property (nonatomic, copy) NSString *specShowImage;        // 规格选择展示的图片
+@property (nonatomic, assign) BOOL isCollected;             // 是否收藏
 
 // 商品详情页使用
 @property (nonatomic, copy) NSString *commission;           // 佣金

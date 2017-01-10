@@ -19,6 +19,10 @@
 @property (nonatomic, assign) BOOL isDefaultAddress;        // 是否默认地址
 
 @property (nonatomic, copy) NSString *addressId;
+@property (nonatomic, copy) NSString *provinceId;
+@property (nonatomic, copy) NSString *cityId;
+@property (nonatomic, copy) NSString *areaId;
+
 @property (nonatomic, copy) NSString *province;             // 省份
 @property (nonatomic, copy) NSString *city;                 // 城市
 @property (nonatomic, copy) NSString *area;                 // 地区

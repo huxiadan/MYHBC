@@ -42,7 +42,7 @@
 {
     if (self = [super init]) {
         self.titleString = model == nil ? @"添加收货地址" : @"修改收货地址";
-        self.model = model;
+        self.model = model == nil ? [[AddressModel alloc] init] : model;
     }
     return self;
 }
@@ -71,7 +71,7 @@
     
     [self addDefaultView];
     
-    if (self.model) {
+    if ([self.titleString isEqualToString:@"修改收货地址"]) {
         [self addDeleteView];
     }
     
@@ -416,8 +416,6 @@
         return;
     }
     
-    AddressModel *model;
-    
     if ([self.titleString rangeOfString:@"修改"].length > 0) {
         self.model.receivePersonName = self.personField.text;
         self.model.phoneNumber = self.phoneField.text;
@@ -436,17 +434,15 @@
                 }
             }
         }
-        
-        model = self.model;
     }
     else {
-        model = [[AddressModel alloc] init];
-        model.receivePersonName = self.personField.text;
-        model.phoneNumber = self.phoneField.text;
-        model.province = self.provinceLabel.text;
-        model.city = self.cityLabel.text;
-        model.area = self.areaLabel.text;
-        model.address = self.addrTextView.text;
+        self.model.addressId = @"";
+        self.model.receivePersonName = self.personField.text;
+        self.model.phoneNumber = self.phoneField.text;
+        self.model.province = self.provinceLabel.text;
+        self.model.city = self.cityLabel.text;
+        self.model.area = self.areaLabel.text;
+        self.model.address = self.addrTextView.text;
         if (self.defaultButton.isSelected) {
             NSArray *modelArray = [MYSingleTon sharedMYSingleTon].addressModelArray;
             for (AddressModel *fModel in modelArray) {
@@ -458,13 +454,13 @@
         }
         
         NSMutableArray *tmpArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].addressModelArray];
-        [tmpArray addObject:model];
+        [tmpArray addObject:self.model];
         [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
     }
     
     __weak typeof(self) weakSelf = self;
     
-    [NetworkManager updateUserAddressWithModel:model finishBlock:^(id jsonData, NSError *error) {
+    [NetworkManager updateUserAddressWithModel:self.model finishBlock:^(id jsonData, NSError *error) {
         if (error) {
             DLog(@"%@",error.localizedDescription);
         }
@@ -493,16 +489,25 @@
     switch (sender.tag) {
         case AddressDataPickerTag_Provience:
         default:
-            [self.picker showWithType:sender.tag title:self.provinceLabel.text];
+        {
+            HDAreaModel *model = [[HDAreaModel alloc] init];
+            model.areaName = self.provinceLabel.text == nil ? @"" : self.provinceLabel.text;
+            [self.picker showWithType:sender.tag title:model];
+        }
             break;
         case AddressDataPickerTag_City:
+        {
             if (self.provinceLabel.text.length == 0) {
                 [MYProgressHUD showAlertWithMessage:@"请先选择省份"];
                 return;
             }
-            [self.picker showWithType:sender.tag title:self.cityLabel.text];
+            HDAreaModel *model = [[HDAreaModel alloc] init];
+            model.areaName = self.cityLabel.text == nil ? @"" : self.cityLabel.text;
+            [self.picker showWithType:sender.tag title:model];
+        }
             break;
         case AddressDataPickerTag_Area:
+        {
             if (self.provinceLabel.text.length == 0) {
                 [MYProgressHUD showAlertWithMessage:@"请先选择省份"];
                 return;
@@ -511,9 +516,11 @@
                 [MYProgressHUD showAlertWithMessage:@"请先选择城市"];
                 return;
             }
-            [self.picker showWithType:sender.tag title:self.areaLabel.text];
+            HDAreaModel *model = [[HDAreaModel alloc] init];
+            model.areaName = self.areaLabel.text == nil ? @"" : self.areaLabel.text;
+            [self.picker showWithType:sender.tag title:model];
+        }
             break;
-
     }
 }
 
@@ -570,25 +577,44 @@
     if (!_picker) {
         _picker = [[AddressPickerView alloc] init];
         
-        [_picker setinitailData:self.provinceLabel.text city:self.cityLabel.text area:self.areaLabel.text];
+        HDAreaModel *provModel = [[HDAreaModel alloc] init];
+        provModel.areaName = self.provinceLabel.text == nil ? @"" : self.provinceLabel.text;
+        
+        HDAreaModel *cityModel = [[HDAreaModel alloc] init];
+        cityModel.areaName = self.cityLabel.text == nil ? @"" : self.provinceLabel.text;
+        
+        HDAreaModel *areaModel = [[HDAreaModel alloc] init];
+        areaModel.areaName = self.areaLabel.text == nil ? @"" : self.provinceLabel.text;
+        
+        
+        [_picker setinitailData:provModel city:cityModel area:areaModel];
         
         __weak typeof(self) weakSelf = self;
-        _picker.titleBlock = ^(NSString *title, AddressDataPickerTag tag) {
+        _picker.titleBlock = ^(HDAreaModel *title, AddressDataPickerTag tag) {
             if (tag == AddressDataPickerTag_Provience) {
-                if (![title isEqualToString:weakSelf.provinceLabel.text]) {
-                    [weakSelf.provinceLabel setText:title];
+                if (![title.areaName isEqualToString:weakSelf.provinceLabel.text]) {
+                    [weakSelf.provinceLabel setText:title.areaName];
                     [weakSelf.cityLabel setText:@""];
                     [weakSelf.areaLabel setText:@""];
+                    
+                    weakSelf.model.provinceId = title.areaCode;
+                    weakSelf.model.cityId = @"";
+                    weakSelf.model.areaId = @"";
                 }
             }
             else if (tag == AddressDataPickerTag_City) {
-                if (![title isEqualToString:weakSelf.cityLabel.text]) {
-                    [weakSelf.cityLabel setText:title];
+                if (![title.areaName isEqualToString:weakSelf.cityLabel.text]) {
+                    [weakSelf.cityLabel setText:title.areaName];
                     [weakSelf.areaLabel setText:@""];
+                    
+                    weakSelf.model.cityId = title.areaCode;
+                    weakSelf.model.areaId = @"";
                 }
             }
             else if (tag == AddressDataPickerTag_Area) {
-                [weakSelf.areaLabel  setText:title];
+                [weakSelf.areaLabel setText:title.areaName];
+                
+                weakSelf.model.areaId = title.areaCode;
             }
         };
         [self.view addSubview:_picker];

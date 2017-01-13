@@ -82,6 +82,7 @@
         model.goodsName = @"平和红心蜜柚平和红心蜜柚5斤两颗装adfedfdffffdddddd";
         model.goodsPrice = @"22.8";
         model.marketPrice = @"32.9";
+        model.isGroup = YES;
         [tmpArray addObject:model];
     }
 
@@ -99,8 +100,8 @@
     orderModel.commissionString = @"2/件";
     orderModel.commissionShareText = @"分享佣金¥1.4+返利佣金¥4.7=¥6.1";
     
-    NSMutableArray *memberArray = [[NSMutableArray alloc] initWithCapacity:4];
-    for (NSInteger index = 0; index < 4; index++) {
+    NSMutableArray *memberArray = [[NSMutableArray alloc] initWithCapacity:5];
+    for (NSInteger index = 0; index < 5; index++) {
         GroupMemberModel *menber = [[GroupMemberModel alloc] init];
         menber.addTime = index%2 == 0 ? 1479950471 : 1479943271;
         menber.userName = @"萨博尼斯";
@@ -129,11 +130,6 @@
     [self addBottomView];
     
     [self.view addSubview:self.collectionView];
-//    [self.collectionView mas_makeConstraints:^(MASConstraintMaker *make) {
-//        make.top.equalTo(self.titleView.mas_bottom).offset(1);
-//        make.left.right.equalTo(self.view);
-//        make.bottom.equalTo(self.bottomView.mas_top);
-//    }];
 }
 
 - (void)addBottomView

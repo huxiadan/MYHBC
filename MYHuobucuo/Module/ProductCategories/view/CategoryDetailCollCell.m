@@ -106,6 +106,8 @@
 {
     _goodsModel = goodsModel;
     
+    [self.addShoppingCarButton setHidden:goodsModel.isGroup];
+    
     [self.goodsNameLabel setText:goodsModel.goodsName];
     
     [self.goodsImageView sd_setImageWithURL:[NSURL URLWithString:goodsModel.goodsImageURL] placeholderImage:[UIImage imageNamed:@"img_load_square"]];

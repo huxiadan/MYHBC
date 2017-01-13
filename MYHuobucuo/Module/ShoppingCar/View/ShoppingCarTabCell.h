@@ -20,4 +20,6 @@ typedef void(^DeleteButtonClickBlock)(OrderModel *model);
 @property (nonatomic, copy) SelectButtonClickBlock selectBlock;
 @property (nonatomic, copy) DeleteButtonClickBlock deleteBlock;
 
+@property (nonatomic, strong) NSIndexPath *indexPath;
+
 @end

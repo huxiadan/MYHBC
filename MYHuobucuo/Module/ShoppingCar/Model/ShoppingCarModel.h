@@ -22,4 +22,6 @@
 @property (nonatomic, strong) NSArray<OrderShopModel *> *shopArray; // 购物车商店数组
 @property (nonatomic, assign) BOOL isEditAll;                       // 是否编辑全部
 
+- (void)setValueWithDict:(NSDictionary *)dict;
+
 @end

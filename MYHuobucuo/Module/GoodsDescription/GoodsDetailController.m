@@ -15,7 +15,6 @@
 #import "GoodsDetailCollHeaderView.h"
 #import "CategoryDetailCollCell.h"
 #import "GoodsDetailCollFooterView.h"
-#import "GoodsSpecSelectView.h"
 #import "GoodsDetailBottomView.h"
 #import "StoreViewController.h"
 #import "HDLabel.h"
@@ -31,8 +30,6 @@
 
 @property (nonatomic, strong) UIView *bottomView;
 
-@property (nonatomic, strong) GoodsSpecSelectView *specSelectView;
-
 @property (nonatomic, strong) UILabel *priceLabel;
 
 // Data
@@ -43,8 +40,6 @@
 @property (nonatomic, assign) CGFloat headerHeight;             // collectionView 头高
 
 @property (nonatomic, strong) NSString *price;                  // 当前的单价
-@property (nonatomic, assign) NSUInteger quantity;              // 当前的数量
-@property (nonatomic, strong) NSArray *specSelectArray;         // 当前选择的规格
 
 @end
 
@@ -307,34 +302,6 @@
 
 #pragma mark - Getter
 
-- (GoodsSpecSelectView *)specSelectView
-{
-    if (!_specSelectView) {
-        __weak typeof(self) weakSelf = self;
-        
-        _specSelectView = [[GoodsSpecSelectView alloc] initWithGoodsDetailModel:self.goodsModel];
-        
-        _specSelectView.selectSpecBlock = ^(NSArray<GoodsSpecOptionButton *> *selectButtonArray, NSString *price, NSUInteger quantity) {
-            
-            // 已选择规格
-            [[NSNotificationCenter defaultCenter] postNotificationName:kGoodsSpecSelectPriceChangeNoti object:nil userInfo:@{@"price":price}];
-            
-            weakSelf.price = price;
-            weakSelf.quantity = quantity;
-            
-            NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity:selectButtonArray.count];
-            
-            for (GoodsSpecOptionButton *button in selectButtonArray) {
-                [tmpArray addObjectSafe:button.specId];
-            }
-            weakSelf.specSelectArray = [tmpArray copy];
-        };
-        
-        [[UIApplication sharedApplication].keyWindow addSubview:_specSelectView];
-    }
-    return _specSelectView;
-}
-
 - (UICollectionView *)recommendView
 {
     if (!_recommendView) {
@@ -479,7 +446,8 @@
             
             headerView.specSelectBlock = ^() {
                 
-                [weakSelf.specSelectView showView];
+                [[NSNotificationCenter defaultCenter] postNotificationName:kGoodsShowSpecSelectViewNoti object:nil];
+//                [weakSelf.specSelectView showView];
             };
             
             headerView.toShopBlock = ^(NSString *shopId) {

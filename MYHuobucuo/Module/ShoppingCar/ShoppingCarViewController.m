@@ -17,6 +17,9 @@
 #import "MYSingleTon.h"
 #import "GoodsViewController.h"
 #import "StoreViewController.h"
+#import "NetworkRequest.h"
+
+#define kPageSize 15
 
 @interface ShoppingCarViewController () <UITableViewDataSource, UITableViewDelegate>
 
@@ -33,6 +36,7 @@
 @property (nonatomic, strong) ShoppingCarModel *shopCarModel;// 购物车模型
 @property (nonatomic, assign) BOOL isShowTabBar;             // 是否显示 tabbar. 适配两种情况下的购物车
 @property (nonatomic, assign) BOOL isEditAll;                // 全部 cell 进入编辑状态
+@property (nonatomic, assign) NSUInteger currPageNumber;     // 当前页数
 
 @end
 
@@ -89,7 +93,7 @@
         shopModel.goodsAmount = @"123.45";
         shopModel.shopName = [NSString stringWithFormat:@"订单列表测试店铺名- NO.%ld",shopIndex];
         shopModel.state = OrderShopState_WaitPay;
-        shopModel.isSelect = YES;
+        shopModel.isSelect = NO;
         
         NSMutableArray *goodsTmpArray = [NSMutableArray array];
         
@@ -99,7 +103,7 @@
             model.goodsSpecification = @"测试规格";
             model.goodsPrice = @"12.4";
             model.goodsNumber = 2;
-            model.isSelect = YES;
+            model.isSelect = NO;
             if (index == 1) {
                 model.goodsLimitNumber = 1;
                 model.goodsNumber = 1;
@@ -124,14 +128,44 @@
 
 - (void)refreshShoppingCarData
 {
-//    self.shopCarModelArray = nil;
     [MYSingleTon sharedMYSingleTon].shoppingCarModel = nil;
     
+    self.currPageNumber = 0;
+    
+    [self requestDataWithPage:0];
     
 }
 
-- (void)loadMoreShoppingCarDataWithPage:(NSInteger)page
-{}
+- (void)loadMoreShoppingCarData
+{
+    self.currPageNumber++;
+    
+    [self requestDataWithPage:self.currPageNumber];
+}
+
+- (void)requestDataWithPage:(NSUInteger)page
+{
+    __weak typeof(self) weakSelf = self;
+    
+    [NetworkManager getShoppingCarInfoWithPage:page pageSize:kPageSize finishBlock:^(id jsonData, NSError *error) {
+        if (error) {
+            DLog(@"%@",error.localizedDescription);
+        }
+        else {
+            NSDictionary *jsonDict = (NSDictionary *)jsonData;
+            NSDictionary *statusDict = jsonDict[@"status"];
+            if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+            }
+            else {
+                NSDictionary *dataDict = jsonDict[@"data"];
+                
+                [weakSelf.payNumberLabel setText:[dataDict objectForKey:@"allnum"]];
+                [weakSelf.payMoneyLabel setText:[dataDict objectForKey:@"allprice"]];
+            }
+        }
+    }];
+}
 
 - (void)emptyData
 {
@@ -369,6 +403,7 @@
     
     if (!cell) {
         cell = [[ShoppingCarTabCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:kShoppingCarTabCellIdentity];
+        cell.indexPath = indexPath;
     }
     
     OrderShopModel *shopModel = [[MYSingleTon sharedMYSingleTon].shoppingCarModel.shopArray objectAtIndex:indexPath.section];
@@ -377,7 +412,10 @@
     
     __weak typeof(self) weakSelf = self;
     cell.selectBlock = ^(OrderModel *model) {
-    
+        
+        [[MYSingleTon sharedMYSingleTon] updateShoppingCarDataWithSection:indexPath.section actionSender:1];
+        
+        [weakSelf.shopCarListView reloadData];
     };
     cell.deleteBlock = ^(OrderModel *model) {
         NSMutableArray *tmpArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].shoppingCarModel.shopArray];

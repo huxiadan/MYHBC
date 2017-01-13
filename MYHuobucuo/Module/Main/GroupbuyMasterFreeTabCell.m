@@ -117,10 +117,16 @@
     self.groupCountLabel.text = countString;
     
     // 价格
-    NSString *priceString = [NSString stringWithFormat:@"拼团价 ￥%@", model.price];
+    NSString *priceString = [NSString stringWithFormat:@"拼团价 ￥%@ ¥%@", model.price, model.marketPrice];
     NSMutableAttributedString *attrPrice = [[NSMutableAttributedString alloc] initWithString:priceString];
     [attrPrice addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(32)]} range:NSMakeRange(0, 3)];
     [attrPrice addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(28)]} range:NSMakeRange(4, 1)];
+    
+    NSRange marketRange = NSMakeRange(priceString.length - model.marketPrice.length - 1, model.marketPrice.length + 1);
+    
+    [attrPrice addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(24)]} range:marketRange];
+    [attrPrice addAttributes:@{NSForegroundColorAttributeName : HexColor(0x999999)} range:marketRange];
+    [attrPrice addAttributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)} range:marketRange];
     
     self.priceLabel.attributedText = attrPrice;
     

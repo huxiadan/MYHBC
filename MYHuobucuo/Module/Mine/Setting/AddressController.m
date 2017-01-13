@@ -13,6 +13,7 @@
 #import "MYSingleTon.h"
 #import "NetworkRequest.h"
 #import <Masonry.h>
+#import "NetworkRequest.h"
 
 @interface AddressController () <UITableViewDataSource, UITableViewDelegate>
 
@@ -128,12 +129,40 @@
     
     __weak typeof(self) weakSelf = self;
     cell.deleteBlock = ^(AddressModel *model) {
-        NSMutableArray *tmpArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].addressModelArray];
-        [tmpArray removeObject:model];
-        [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
-    
-        [weakSelf.addressListView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
-        [weakSelf.addressListView reloadData];
+//        NSMutableArray *tmpArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].addressModelArray];
+//        [tmpArray removeObject:model];
+//        [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
+//    
+//        [weakSelf.addressListView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+//        [weakSelf.addressListView reloadData];
+        
+        [NetworkManager deleteUserAddressWithAddressId:model.addressId finishBlock:^(id jsonData, NSError *error) {
+            if (error) {
+                DLog(@"%@",error.localizedDescription);
+            }
+            else {
+                NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                NSDictionary *statusDict = jsonDict[@"status"];
+                if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                    [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+                }
+                else {
+                    NSDictionary *statusDict = jsonDict[@"status"];
+                    if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                        [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+                    }
+                    else {
+                        [MYProgressHUD showAlertWithMessage:@"删除成功~"];
+                        
+                        NSMutableArray *tmpArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].addressModelArray];
+                        [tmpArray removeObject:model];
+                        [MYSingleTon sharedMYSingleTon].addressModelArray = [tmpArray copy];
+                        
+                        [weakSelf.addressListView reloadData];
+                    }
+                }
+            }
+        }];
     };
     
     cell.defaultBlock = ^() {

@@ -119,6 +119,11 @@ typedef NS_ENUM(NSInteger) {
     CollectionGoodsType_Normal          // 正常收藏的商品
 }CollectionGoodsType;
 
+#pragma mark 商品类型
+typedef NS_ENUM(NSInteger) {
+    GoodsType_Normal = 0,       // 普通商品
+    GoodsType_GroupBy           // 拼团商品
+}GoodsType;
 
 
 #endif /* MYEnumsHeader_h */

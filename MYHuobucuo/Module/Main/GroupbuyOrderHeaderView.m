@@ -143,7 +143,7 @@
         make.right.equalTo(self);
     }];
     
-    self.height += fScreen(40 + 28 + 20) + fScreen(20);
+    self.height += fScreen(40 + 28 + 20) + fScreen(20)*2;
 }
 
 #pragma mark - tableView dataSource & delegate

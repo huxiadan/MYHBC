@@ -13,7 +13,7 @@
 @interface BaiXianBaiPinLimitTimeTabCell ()
 
 @property (nonatomic, strong) UILabel *goodsNameLabel;      // 商品名
-@property (nonatomic, strong) UILabel *marketPriceLabel;    // 规格
+@property (nonatomic, strong) UILabel *marketPriceLabel;    // 市场价
 @property (nonatomic, strong) UILabel *priceLabel;          // 价格
 @property (nonatomic, strong) UILabel *personCountLabel;    // 成团人数
 
@@ -158,7 +158,7 @@
     [self.bContentView addSubview:marketLabel];
     [marketLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.goodsImageView.mas_right).offset(fScreen(30));
-        make.bottom.equalTo(self.bContentView).offset(-fScreen(20 + 32 + 20 + 62));
+        make.bottom.equalTo(priceLabel.mas_top).offset(-fScreen(10));
         make.right.equalTo(self.bContentView.mas_right).offset(-fScreen(30));
         make.height.mas_equalTo(fScreen(28));
     }];
@@ -209,7 +209,7 @@
     }];
 
     // 市场价
-    NSMutableAttributedString *marketString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥ %@", model.marketPrice]];
+    NSMutableAttributedString *marketString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model.marketPrice]];
     [marketString addAttributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)} range:NSMakeRange(0, marketString.length)];
     self. marketPriceLabel.attributedText = marketString;
     

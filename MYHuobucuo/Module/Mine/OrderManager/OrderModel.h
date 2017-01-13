@@ -32,4 +32,6 @@
 @property (nonatomic, copy) NSString *groupId;              // 拼团的 id
 @property (nonatomic, copy) NSString *groupInfoTitle;       // 拼团详情的 title
 
+- (void)setValueWithDict:(NSDictionary *)dict;
+
 @end

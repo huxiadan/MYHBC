@@ -13,6 +13,7 @@
 #import "NSAttributedString+HD.h"
 #import "HDLabel.h"
 #import "MYProgressHUD.h"
+#import "MYSingleTon.h"
 
 @interface ShoppingCarTabCell () <UIAlertViewDelegate>
 
@@ -203,6 +204,8 @@
 - (void)selectButtonClick:(UIButton *)sender
 {
     sender.selected = !sender.isSelected;
+    
+    self.orderModel.isSelect = sender.isSelected;
     
     if (self.selectBlock) {
         self.selectBlock(self.orderModel);

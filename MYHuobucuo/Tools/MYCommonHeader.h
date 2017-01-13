@@ -73,6 +73,7 @@
 #define kUserLoginNoti @"kMYUserLoginNoti"                      // 用户登录通知
 #define kUserLogoutNoti @"kMYUserLogoutNoti"                    // 用户退出通知
 #define kGoodsSpecSelectPriceChangeNoti @"kGoodsSpecSelectPriceChangeNoti"  // 商品详情规格选择后价格改变的通知
+#define kGoodsShowSpecSelectViewNoti @"kGoodsShowSpecSelectViewNoti"    // 商品详情规格选择界面弹出通知
 
 
 #endif /* MYCommonHeader_h */

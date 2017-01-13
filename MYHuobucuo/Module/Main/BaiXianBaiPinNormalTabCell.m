@@ -13,7 +13,7 @@
 @interface BaiXianBaiPinNormalTabCell ()
 
 @property (nonatomic, strong) UILabel *goodsNameLabel;      // 商品名
-@property (nonatomic, strong) UILabel *goodsSpecLabel;      // 规格
+@property (nonatomic, strong) UILabel *marketPriceLabel;    // 市场价
 @property (nonatomic, strong) UILabel *priceLabel;          // 价格
 @property (nonatomic, strong) UILabel *personCountLabel;    // 成团人数
 
@@ -93,19 +93,6 @@
     }];
     self.goodsNameLabel = nameLabel;
     
-    // 规格
-    UILabel *specLabel = [[UILabel alloc] init];
-    [specLabel setFont:[UIFont systemFontOfSize:fScreen(24)]];
-    [specLabel setTextColor:HexColor(0x5560f1)];
-    [self.bContentView addSubview:specLabel];
-    [specLabel mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.equalTo(self.goodsImageView.mas_right).offset(fScreen(30));
-        make.top.equalTo(nameLabel.mas_bottom).offset(fScreen(20));
-        make.right.equalTo(self.bContentView.mas_right).offset(-fScreen(30));
-        make.height.mas_equalTo(fScreen(24));
-    }];
-    self.goodsSpecLabel = specLabel;
-    
     // 成团人数
     UILabel *personCountLabel = [[UILabel alloc] init];
     [personCountLabel setFont:[UIFont systemFontOfSize:fScreen(24)]];
@@ -132,6 +119,19 @@
         make.baseline.equalTo(self.personCountLabel.mas_baseline);
     }];
     self.priceLabel = priceLabel;
+    
+    // 原价
+    UILabel *marketLabel = [[UILabel alloc] init];
+    [marketLabel setFont:[UIFont systemFontOfSize:fScreen(28)]];
+    [marketLabel setTextColor:HexColor(0x999999)];
+    [self.bContentView addSubview:marketLabel];
+    [marketLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(self.goodsImageView.mas_right).offset(fScreen(30));
+        make.bottom.equalTo(priceLabel.mas_top).offset(-fScreen(10));
+        make.right.equalTo(self.bContentView.mas_right).offset(-fScreen(30));
+        make.height.mas_equalTo(fScreen(28));
+    }];
+    self.marketPriceLabel = marketLabel;
 }
 
 - (void)setModel:(BaiXianBaiPinModel *)model
@@ -162,10 +162,11 @@
     [self.goodsNameLabel mas_updateConstraints:^(MASConstraintMaker *make) {
         make.height.mas_equalTo(height > towLineHeight ? towLineHeight : height);
     }];
-    [self.goodsSpecLabel layoutIfNeeded];
     
-    // 规格
-    self.goodsSpecLabel.text = model.goodsSpec;
+    // 市场价
+    NSMutableAttributedString *marketString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model.marketPrice]];
+    [marketString addAttributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)} range:NSMakeRange(0, marketString.length)];
+    self. marketPriceLabel.attributedText = marketString;
     
     // 佣金
     self.commissionTitle.text = model.commissionTitle;

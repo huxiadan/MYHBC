@@ -64,8 +64,9 @@
         BaiXianBaiPinModel *model = [[BaiXianBaiPinModel alloc] init];
         model.goodsName = @"[十八街] 天津麻花 十八街总店1.8米超级无敌巨无霸麻花";
         model.goodsSpec = @"1条/件";
-        model.price = @"452.5";
+        model.price = @"44";
         model.personCount = 10;
+        model.marketPrice = @"998.0";
         
         // 根据 type 来区分请求
         switch (self.groupType) {

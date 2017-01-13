@@ -27,4 +27,9 @@ SingletonH(MYSingleTon)
 
 @property (nonatomic, strong) ShoppingCarModel *shoppingCarModel; // 购物车数组
 
+@property (nonatomic, strong) NSArray *goodsSelectSpecArray;    // 商品详情已选规格数组
+@property (nonatomic, assign) NSUInteger goodsSpecMaxCount;     // 商品详情已选规格的最大数量
+
+- (void)updateShoppingCarDataWithSection:(NSUInteger)session actionSender:(NSInteger)actionSender;
+
 @end

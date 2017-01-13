@@ -20,6 +20,8 @@
 #import "MainViewController.h"
 #import "MYTabBarController.h"
 #import "NetworkRequest.h"
+#import "MYSingleTon.h"
+#import "GoodsSpecSelectView.h"
 
 #import <Masonry.h>
 
@@ -28,12 +30,15 @@
 // data
 @property (nonatomic, copy) NSString *goodsId;
 @property (nonatomic, strong) GoodsDetailModel *goodsModel;
+@property (nonatomic, assign) NSUInteger quantity;              // 当前的数量
 
 
 // UI
 @property (nonatomic, strong) HDPageViewController *pageViewController;
 @property (nonatomic, strong) GoodsDetailBottomView *bottomView;               // 底部视图
 @property (nonatomic, strong) UIView *goodsMoreView;                           // 右上角更多
+@property (nonatomic, strong) GoodsSpecSelectView *specSelectView;
+
 
 @end
 
@@ -45,14 +50,28 @@
     
     [self hideNavigationBar];
     [self hideTabBar];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(ShowSpecSelectView) name:kGoodsShowSpecSelectViewNoti object:nil];
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    [MYProgressHUD showWaitingViewWithMessage:@"数据加载中..."];
+    
     self.goodsId = @"13388";
     
     [self requestData];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    
+    // 移除通知
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    // 清空缓存的规格数组
+    [MYSingleTon sharedMYSingleTon].goodsSelectSpecArray = nil;
 }
 
 - (void)didReceiveMemoryWarning {
@@ -79,6 +98,9 @@
     __weak typeof(self) weakSelf = self;
     
     [NetworkManager getGoodsInfoWithGoodsId:self.goodsId finishBlock:^(id jsonData, NSError *error) {
+        
+        [MYProgressHUD dismissMessageView];
+        
         if (error) {
             
             DLog(@"%@",error.localizedDescription);
@@ -203,7 +225,43 @@
     };
     
     self.bottomView.addShopCarBlock = ^ () {
-        [MYProgressHUD showAlertWithMessage:@"添加购物车成功~"];
+        
+        // 判断登录
+        if (![AppUserManager hasUser]) {
+            [AppUserManager userLogin];
+            return;
+        }
+        
+        // 判断规格是否选择全
+        if ([MYSingleTon sharedMYSingleTon].goodsSelectSpecArray.count < self.goodsModel.specArray.count) {
+            
+            // 弹出规格选择界面
+            [weakSelf.specSelectView showView];
+            return;
+        }
+        
+        // 请求接口
+        NSMutableString *tmpSpecString = [[NSMutableString alloc] init];
+        for (NSString *spec in [MYSingleTon sharedMYSingleTon].goodsSelectSpecArray) {
+            [tmpSpecString appendString:[NSString stringWithFormat:@"%@_",spec]];
+        }
+        NSString *specString = [tmpSpecString substringToIndex:tmpSpecString.length - 1];
+        [NetworkManager addGoodsToShoppingCarWithGoodsId:weakSelf.goodsId goodsSpecString:specString orderType:GoodsType_Normal number:weakSelf.quantity finishBlock:^(id jsonData, NSError *error) {
+            
+            if (error) {
+                NSLog(@"%@",error.localizedDescription);
+            }
+            else {
+                NSDictionary *jsonDict = (NSDictionary *)jsonData;
+                NSDictionary *statusDict = jsonDict[@"status"];
+                if (![statusDict[@"code"] isEqualToString:kStatusSuccessCode]) {
+                    [MYProgressHUD showAlertWithMessage:statusDict[@"msg"]];
+                }
+                else {
+                    [MYProgressHUD showAlertWithMessage:@"添加购物车成功~"];
+                }
+            }
+        }];
     };
     
     self.bottomView.collectBlock = ^(BOOL isCollected) {
@@ -292,6 +350,12 @@
     }];
 }
 
+// 显示规格选择界面
+- (void)ShowSpecSelectView
+{
+    [self.specSelectView showView];
+}
+
 
 #pragma mark - Button click
 // 分享
@@ -353,6 +417,45 @@
 }
 
 #pragma mark - Getter
+- (GoodsSpecSelectView *)specSelectView
+{
+    if (!_specSelectView) {
+        __weak typeof(self) weakSelf = self;
+        
+        _specSelectView = [[GoodsSpecSelectView alloc] initWithGoodsDetailModel:self.goodsModel];
+        
+        _specSelectView.selectSpecBlock = ^(NSArray<GoodsSpecOptionButton *> *selectButtonArray, NSString *price, NSUInteger quantity) {
+            
+            // 已选择规格
+            if (price != nil && ![price isEqualToString:@""]) {
+                [[NSNotificationCenter defaultCenter] postNotificationName:kGoodsSpecSelectPriceChangeNoti object:nil userInfo:@{@"price":price}];
+            }
+            
+            weakSelf.quantity = quantity;
+            
+            NSMutableArray *tmpArray = [NSMutableArray arrayWithCapacity:selectButtonArray.count];
+            
+            if (selectButtonArray.count > 0) {
+                BOOL isComplete = YES;
+                for (GoodsSpecOptionButton *button in selectButtonArray) {
+                    if (nil == button.specId) {
+                        isComplete = NO;
+                        break;
+                    }
+                    [tmpArray addObjectSafe:button.specId];
+                }
+                
+                if (isComplete) {
+                    [MYSingleTon sharedMYSingleTon].goodsSelectSpecArray = [tmpArray copy];
+                }
+            }
+        };
+        
+        [[UIApplication sharedApplication].keyWindow addSubview:_specSelectView];
+    }
+    return _specSelectView;
+}
+
 - (UIView *)goodsMoreView
 {
     if (!_goodsMoreView) {

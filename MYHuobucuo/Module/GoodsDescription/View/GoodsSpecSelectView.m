@@ -9,6 +9,7 @@
 #import "GoodsSpecSelectView.h"
 #import "GoodsDetailModel.h"
 #import <Masonry.h>
+#import "MYProgressHUD.h"
 
 @interface GoodsSpecSelectView ()
 
@@ -22,6 +23,7 @@
 @property (nonatomic, strong) UILabel *quantityLabel;       // 购买数量
 @property (nonatomic, strong) UIScrollView *allSpecView;    // 选项
 @property (nonatomic, strong) UIButton *sureButton;         // 确认按钮
+@property (nonatomic, strong) UIView *numberView;           // 数量选择界面
 
 @property (nonatomic, strong) NSArray<NSArray *> *allSpecArray;        // 所有规格组的数组
 @property (nonatomic, strong) NSArray<GoodsSpecOptionButton *> *selectArray;         // 每个规格组选中的规格的按钮的数组
@@ -123,7 +125,6 @@
         make.height.mas_equalTo(fScreen(34));
     }];
     self.priceLabel = priceLabel;
-    [priceLabel setText:@"￥99-19999"];
     
     // 库存
     UILabel *storeLabel = [[UILabel alloc] init];
@@ -163,6 +164,15 @@
     }];
     self.sureButton = sureButton;
     
+    // 数量
+    [contentView addSubview:self.numberView];
+    [self.numberView mas_makeConstraints:^(MASConstraintMaker *make) {
+        make.left.equalTo(contentView).offset(fScreen(30));
+        make.bottom.equalTo(sureButton.mas_top).offset(-fScreen(20));
+        make.height.mas_equalTo(fScreen(75));
+        make.width.mas_equalTo(fScreen(338));
+    }];
+    
     // 规格列表
     UIScrollView *scrollView = [[UIScrollView alloc] init];
     [scrollView setBackgroundColor:[UIColor whiteColor]];
@@ -170,7 +180,7 @@
     [scrollView mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.right.equalTo(contentView);
         make.top.equalTo(contentView).offset(fScreen(220 + 20));
-        make.bottom.equalTo(sureButton.mas_top).offset(-fScreen(20));
+        make.bottom.equalTo(self.numberView.mas_top).offset(-fScreen(20));
     }];
     
     self.allSpecView = scrollView;
@@ -222,7 +232,7 @@
         NSArray *options = (NSArray *)dict[titleText];
         
         // 每个类别规格的数组
-        NSMutableArray *tmpSpecTypeArray = [NSMutableArray arrayWithCapacity:options.class];
+        NSMutableArray *tmpSpecTypeArray = [NSMutableArray arrayWithCapacity:options.count];
         
         for (GoodsSpecModel *specModel in options) {
             
@@ -297,12 +307,18 @@
     return button;
 }
 
+#pragma mark - button click
+
 - (void)sureButtonClick:(UIButton *)sender
 {
     [self hideView];
     
     if (self.selectSpecBlock) {
-        self.selectSpecBlock(self.selectArray, [self.priceLabel.text substringFromIndex:2], [self. quantityLabel.text integerValue]);
+        NSString *price = self.priceLabel.text;
+        if ([price rangeOfString:@"¥"].length > 0) {
+            price = [price substringFromIndex:1];
+        }
+        self.selectSpecBlock(self.selectArray, price, [self.quantityLabel.text integerValue]);
     }
 }
 
@@ -310,7 +326,14 @@
 {
     sender.selected = !sender.isSelected;
     
-    GoodsSpecOptionButton *lastSelectButton = [self.selectArray objectAtIndex:sender.groupIndex];
+    GoodsSpecOptionButton *lastSelectButton;
+    if (sender.groupIndex < self.selectArray.count - 1) {
+        lastSelectButton = [self.selectArray objectAtIndex:sender.groupIndex];
+    }
+    else {
+        lastSelectButton = [[GoodsSpecOptionButton alloc] init];
+    }
+    
     NSString *currGroupSelectId = lastSelectButton.specId;
     
     if (![currGroupSelectId isEqualToString:sender.specId]) {
@@ -368,7 +391,37 @@
             }
         }
     }
+}
 
+// 数量减
+- (void)desButtonClick:(UIButton *)sender
+{
+    NSInteger number = [self.quantityLabel.text integerValue];
+    if (number == 1) {
+        // 询问删除
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:nil message:@"是否要删除该商品" delegate:self cancelButtonTitle:@"点错了" otherButtonTitles:@"确定删除", nil];
+        [alert show];
+        return;
+    }
+    else {
+        number--;
+    }
+    [self.quantityLabel setText:[NSString stringWithFormat:@"%ld",number]];
+}
+
+// 数量加
+- (void)addButtonClick:(UIButton *)sender
+{
+    NSInteger number = [self.quantityLabel.text integerValue];
+    if (number == [MYSingleTon sharedMYSingleTon].goodsSpecMaxCount) {
+        // 提示已经达到可购买最大数量
+        [MYProgressHUD showAlertWithMessage:@"已经达到最大可购买数量"];
+        return;
+    }
+    else {
+        number++;
+    }
+    [self.quantityLabel setText:[NSString stringWithFormat:@"%ld",number]];
 }
 
 - (void)hideView
@@ -387,6 +440,68 @@
         self.alpha = 1;
     }];
 }
+
+#pragma mark - Getter
+- (UIView *)numberView
+{
+    if (!_numberView) {
+        UIView *editNumberView = [[UIView alloc] init];
+        [editNumberView setBackgroundColor:viewControllerBgColor];
+        
+        UIButton *desButton = [[UIButton alloc] init];
+        [desButton setImage:[UIImage imageNamed:@"icon_decrease"] forState:UIControlStateNormal];
+        [desButton addTarget:self action:@selector(desButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [editNumberView addSubview:desButton];
+        [desButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.top.bottom.left.equalTo(editNumberView);
+            make.width.mas_equalTo(fScreen(100));
+        }];
+        
+        UIButton *addButton = [[UIButton alloc] init];
+        [addButton setImage:[UIImage imageNamed:@"icon_augment"] forState:UIControlStateNormal];
+        [addButton addTarget:self action:@selector(addButtonClick:) forControlEvents:UIControlEventTouchUpInside];
+        [editNumberView addSubview:addButton];
+        [addButton mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.right.top.bottom.equalTo(editNumberView);
+            make.width.equalTo(desButton.mas_width);
+        }];
+        
+        UIView *lineVieLeft = [[UIView alloc] init];
+        [lineVieLeft setBackgroundColor:[UIColor whiteColor]];
+        [editNumberView addSubview:lineVieLeft];
+        [lineVieLeft mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.centerY.equalTo(desButton);
+            make.left.equalTo(desButton.mas_right);
+            make.width.equalTo(@2);
+            make.height.mas_equalTo(fScreen(60));
+        }];
+        
+        UIView *lineViewRight = [[UIView alloc] init];
+        [lineViewRight setBackgroundColor:[UIColor whiteColor]];
+        [editNumberView addSubview:lineViewRight];
+        [lineViewRight mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.width.height.centerY.equalTo(lineVieLeft);
+            make.right.equalTo(editNumberView.mas_right).offset(-fScreen(100));
+        }];
+        
+        UILabel *editNumberLabel = [[UILabel alloc] init];
+        [editNumberLabel setFont:[UIFont systemFontOfSize:fScreen(28)]];
+        [editNumberLabel setTextColor:HexColor(0x333333)];
+        [editNumberLabel setTextAlignment:NSTextAlignmentCenter];
+        [editNumberView addSubview:editNumberLabel];
+        [editNumberLabel mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(lineVieLeft.mas_right);
+            make.right.equalTo(lineViewRight.mas_left);
+            make.top.bottom.equalTo(editNumberView);
+        }];
+        [editNumberLabel setText:@"1"];
+        self.quantityLabel = editNumberLabel;
+        
+        _numberView = editNumberView;
+    }
+    return _numberView;
+}
+
 
 @end
 

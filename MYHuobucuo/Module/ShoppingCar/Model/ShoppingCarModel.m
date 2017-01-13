@@ -28,4 +28,11 @@
     }
 }
 
+- (void)setValueWithDict:(NSDictionary *)dict
+{
+    self.payMoneyCount = [dict objectForKey:@"allprice"];
+}
+
+
+
 @end

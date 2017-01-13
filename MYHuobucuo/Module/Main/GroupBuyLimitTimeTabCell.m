@@ -153,7 +153,7 @@
     [priceLabel mas_makeConstraints:^(MASConstraintMaker *make) {
         make.left.equalTo(self.bContentView).offset(fScreen(20));
         make.height.mas_equalTo(fScreen(48));
-        make.right.mas_equalTo(self.goodsSpecLabel.mas_left).offset(-fScreen(20));
+        make.right.equalTo(self.goodsSpecLabel.mas_left).offset(-fScreen(20));
         make.baseline.equalTo(self.goodsSpecLabel.mas_baseline);
     }];
     self.priceLabel = priceLabel;
@@ -184,11 +184,17 @@
     self.groupCountLabel.text = countString;
     
     // 价格
-    NSString *priceString = [NSString stringWithFormat:@"拼团价 ￥%@", model.price];
+    NSString *priceString = [NSString stringWithFormat:@"拼团价 ￥%@ ¥%@", model.price, model.marketPrice];
     NSMutableAttributedString *attrPrice = [[NSMutableAttributedString alloc] initWithString:priceString];
     [attrPrice addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(32)]} range:NSMakeRange(0, 3)];
     [attrPrice addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(28)]} range:NSMakeRange(4, 1)];
     
+    NSRange marketRange = NSMakeRange(priceString.length - model.marketPrice.length - 1, model.marketPrice.length + 1);
+    
+    [attrPrice addAttributes:@{NSFontAttributeName : [UIFont systemFontOfSize:fScreen(24)]} range:marketRange];
+    [attrPrice addAttributes:@{NSForegroundColorAttributeName : HexColor(0x999999)} range:marketRange];
+    [attrPrice addAttributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)} range:marketRange];
+
     self.priceLabel.attributedText = attrPrice;
     
     // 名称
@@ -203,6 +209,10 @@
     [self.goodsSpecLabel layoutIfNeeded];
     
     // 规格
+    CGSize specSize = [model.goodsSpec sizeForFontsize:fScreen(24)];
+    [self.goodsSpecLabel mas_updateConstraints:^(MASConstraintMaker *make) {
+        make.width.mas_equalTo(specSize.width + 1);
+    }];
     self.goodsSpecLabel.text = model.goodsSpec;
     
     // 倒计时
@@ -210,6 +220,12 @@
     self.hourLabel.text   = [NSString stringWithFormat:@"%02ld", [timeArray[0] integerValue]];
     self.minLabel.text    = [NSString stringWithFormat:@"%02ld", [timeArray[1] integerValue]];
     self.secondLabel.text = [NSString stringWithFormat:@"%02ld", [timeArray[2] integerValue]];
+    
+//    // 市场价
+//    NSMutableAttributedString *marketString = [[NSMutableAttributedString alloc] initWithString:[NSString stringWithFormat:@"￥%@", model.marketPrice]];
+//    [marketString addAttributes:@{NSStrikethroughStyleAttributeName:@(NSUnderlineStyleSingle)} range:NSMakeRange(0, marketString.length)];
+//    self. marketPriceLabel.attributedText = marketString;
+//    [self.marketPriceLabel layoutIfNeeded];
 }
 
 - (void)setTime:(NSUInteger)time

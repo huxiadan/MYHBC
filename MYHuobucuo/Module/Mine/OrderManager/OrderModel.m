@@ -10,6 +10,17 @@
 
 @implementation OrderModel
 
-
+- (void)setValueWithDict:(NSDictionary *)dict
+{
+    self.goodsId = [dict objectForKey:@"product_id"];
+    self.goodsImageURL = [dict objectForKey:@"image"];
+    self.goodsName = [dict objectForKey:@"product_name"];
+    self.goodsSpecification = [dict objectForKey:@"option"];
+    self.goodsPrice = [dict objectForKey:@"sale_price"];
+    self.goodsNumber = [[dict objectForKey:@"quantity"] integerValue];
+    
+    self.isSelect = NO;
+    self.isEdit = NO;
+}
 
 @end

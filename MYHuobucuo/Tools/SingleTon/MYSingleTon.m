@@ -46,4 +46,40 @@ SingletonM(MYSingleTon)
     return _currAdressModel;
 }
 
+#pragma mark - Public
+
+- (void)updateShoppingCarDataWithSection:(NSUInteger)session actionSender:(NSInteger)actionSender
+{
+    if (!self.shoppingCarModel) {
+        return;
+    }
+    
+    OrderShopModel *shop = [self.shoppingCarModel.shopArray objectAtIndex:session];
+    NSArray *goodsArray = shop.goodsArray;
+    
+    if (actionSender == 0) {
+        // 点击店铺的选择按钮
+        for (OrderModel *goods in goodsArray) {
+            goods.isSelect = shop.isSelect;
+        }
+    }
+    else if (actionSender == 1) {
+        // 点击商品的选择按钮
+        BOOL shopIsSelected = YES;
+        
+        for (OrderModel *goods in goodsArray) {
+            if (goods.isSelect == NO) {
+                shopIsSelected = NO;
+                break;
+            }
+        }
+    }
+    
+    if (shop.isSelect == NO) {
+        self.shoppingCarModel.isSelectAll = NO;
+    }
+}
+
+
+
 @end

@@ -433,22 +433,58 @@
 
 #pragma mark 
 #pragma mark - ShoppingCar
-- (void)getShoppingCarInfo:(FinishBlock)finishBlock
+// 添加购物车
+- (void)addGoodsToShoppingCarWithGoodsId:(NSString *)goodsId goodsSpecString:(NSString *)goodsSpec orderType:(GoodsType)orderType number:(NSUInteger)number finishBlock:(FinishBlock)finishBlock
 {
-    NSString *pageStr = [NSString stringWithFormat:@"%d",1];
-    NSString *countStr = [NSString stringWithFormat:@"%d",10];
+    NSInteger time = kRequestTime;
     
-    NSDictionary *paDic = [NSDictionary dictionaryWithObjectsAndKeys:
-                           pageStr, @"page",
-                           countStr,@"count",
-                           nil];
+    NSString *orderTypeString = nil;
+    if (orderType == GoodsType_Normal) {
+        orderTypeString = @"product";
+    }
+    else {
+        orderTypeString = @"";
+    }
     
-    NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:
-                                paDic,@"pagination",
-                                nil];
-    NSString *urlStr = [NSString stringWithFormat:@"http://www.1233go.com/ECMobile/?url=/shop/list"];
+    NSDictionary *signDict = @{@"productId":goodsId,
+                               @"optionValue":goodsSpec,
+                               @"orderType":orderTypeString,
+                               @"num":[NSNumber numberWithInteger:number],
+                               kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
     
-    [self networkWithUrl:urlStr postParametersDict:dictionary finishBlock:finishBlock];
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=order&c=cart&a=saveCart", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
+}
+
+// 获取购物车数据
+- (void)getShoppingCarInfoWithPage:(NSUInteger)page pageSize:(NSUInteger)pageSize finishBlock:(FinishBlock)finishBlock
+{
+    NSInteger time = kRequestTime;
+    
+    NSDictionary *signDict = @{kParamKeyCustomerId:[HDUserDefaults objectForKey:cUserid],
+                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+                               };
+    
+    NSString *string1 = [self paramsToMD5:signDict];
+    NSString *signString = [self makeSignString:string1];
+    
+    NSMutableDictionary *postDict = [NSMutableDictionary dictionaryWithDictionary:signDict];
+    [postDict setObject:signString forKey:kParamKeySign];
+    [postDict setObjectSafe:@"" forKey:@"sessionId"];
+    [postDict setObjectSafe:@"" forKey:@"cartType"];
+    [postDict setObjectSafe:[NSNumber numberWithInteger:page] forKey:@"page"];
+    [postDict setObjectSafe:[NSNumber numberWithInteger:pageSize] forKey:@"size"];
+    
+    NSString *urlString = [NSString stringWithFormat:@"%@index.php?m=order&c=cart&a=listCarts", kNetworkRequestHeader];
+    [self networkWithUrl:urlString postParametersDict:postDict finishBlock:finishBlock];
 }
 
 - (void)updateGoodsNumber:(NSInteger)goodsNumber goodsId:(NSString *)goodsId finish:(FinishBlock)finishBlock

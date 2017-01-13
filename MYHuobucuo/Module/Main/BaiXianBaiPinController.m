@@ -64,7 +64,7 @@
         model.goodsSpec = @"1条/件";
         model.price = @"452.5";
         model.personCount = 10;
-        
+        model.marketPrice = @"888.0";
         
         if (index%3 == 0) {
             model.type = BaiXianBaiPinCellType_Normal;
@@ -75,7 +75,6 @@
         else if (index%3 == 1) {
             model.type = BaiXianBaiPinCellType_LimitTime;
             
-            model.marketPrice = @"888.0";
             if (index == 1) {
                 model.countDownTime = 10800;
             }

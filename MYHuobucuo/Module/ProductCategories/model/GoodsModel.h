@@ -15,6 +15,7 @@
 @property (nonatomic, copy) NSString *marketPrice;          // 市场价
 @property (nonatomic, copy) NSString *goodsImageURL;        // 图片地址
 @property (nonatomic, copy) NSString *goodsId;              // ID
+@property (nonatomic, assign) BOOL isGroup;                 // 是否是拼团商品
 
 - (void)setValueWithDict:(NSDictionary *)dict;
 

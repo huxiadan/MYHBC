@@ -473,6 +473,10 @@
                                kParamKeyTimestamp:[NSNumber numberWithInteger:time]
                                };
     
+//    NSDictionary *signDict = @{kParamKeyCustomerId:@"9272",
+//                               kParamKeyTimestamp:[NSNumber numberWithInteger:time]
+//                               };
+    
     NSString *string1 = [self paramsToMD5:signDict];
     NSString *signString = [self makeSignString:string1];
     
@@ -480,6 +484,7 @@
     [postDict setObject:signString forKey:kParamKeySign];
     [postDict setObjectSafe:@"" forKey:@"sessionId"];
     [postDict setObjectSafe:@"" forKey:@"cartType"];
+    [postDict setObjectSafe:@"1" forKey:@"resType"];
     [postDict setObjectSafe:[NSNumber numberWithInteger:page] forKey:@"page"];
     [postDict setObjectSafe:[NSNumber numberWithInteger:pageSize] forKey:@"size"];
     

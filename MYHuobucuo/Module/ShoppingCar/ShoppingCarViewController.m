@@ -18,6 +18,7 @@
 #import "GoodsViewController.h"
 #import "StoreViewController.h"
 #import "NetworkRequest.h"
+#import "HDRefresh.h"
 
 #define kPageSize 15
 
@@ -51,14 +52,28 @@
     self.isShowTabBar ? [self showTabBar] : [self hideTabBar];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    [self refreshShoppingCarData];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(shoppingCarNumberCountUpdate) name:kShoppingCarBuyNumberCountUpdateNoti object:nil];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
-
-    [self requestData];
     
     [self initUI];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [super viewDidDisappear:animated];
     
-//    [self emptyData];
+    [MYSingleTon sharedMYSingleTon].shoppingCarModel = nil;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -77,63 +92,13 @@
 
 #pragma mark - Private
 
-- (void)requestData
-{
-    // 请求数据
-    ShoppingCarModel *shopCarModel = [[ShoppingCarModel alloc] init];
-    shopCarModel.payNumberCount = 5;
-    shopCarModel.payMoneyCount = @"1243.6";
-    shopCarModel.isSelectAll = YES;
-    
-    NSMutableArray *shopTmpArray = [NSMutableArray array];
-    
-    for (NSInteger shopIndex = 0; shopIndex < 3; shopIndex++) {
-        OrderShopModel *shopModel = [[OrderShopModel alloc] init];
-        shopModel.goodsCount = 3;
-        shopModel.goodsAmount = @"123.45";
-        shopModel.shopName = [NSString stringWithFormat:@"订单列表测试店铺名- NO.%ld",shopIndex];
-        shopModel.state = OrderShopState_WaitPay;
-        shopModel.isSelect = NO;
-        
-        NSMutableArray *goodsTmpArray = [NSMutableArray array];
-        
-        for (NSInteger index = 0; index < 2; index++) {
-            OrderModel *model = [[OrderModel alloc] init];
-            model.goodsName = @"测试店铺的测试商品名称,阿拉拉啦啦啦";
-            model.goodsSpecification = @"测试规格";
-            model.goodsPrice = @"12.4";
-            model.goodsNumber = 2;
-            model.isSelect = NO;
-            if (index == 1) {
-                model.goodsLimitNumber = 1;
-                model.goodsNumber = 1;
-            }
-            
-            [goodsTmpArray addObject:model];
-        }
-        shopModel.goodsArray = [goodsTmpArray copy];
-        
-        [shopTmpArray addObject:shopModel];
-    }
-    shopCarModel.shopArray = [shopTmpArray copy];
-    
-    [MYSingleTon sharedMYSingleTon].shoppingCarModel = shopCarModel;
-    
-    [self.shopCarListView reloadData];
-
-    [self setPayNumberLabelText:shopCarModel.payNumberCount];
-    [self setPayMoneyLabelText:shopCarModel.payMoneyCount];
-    self.selectAllButton.selected = shopCarModel.isSelectAll;
-}
-
 - (void)refreshShoppingCarData
 {
     [MYSingleTon sharedMYSingleTon].shoppingCarModel = nil;
     
-    self.currPageNumber = 0;
+    self.currPageNumber = 1;
     
-    [self requestDataWithPage:0];
-    
+    [self requestDataWithPage:self.currPageNumber];
 }
 
 - (void)loadMoreShoppingCarData
@@ -145,9 +110,18 @@
 
 - (void)requestDataWithPage:(NSUInteger)page
 {
+    // 检查是否登录
+    if (![AppUserManager hasUser]) {
+        return;
+    }
+    
     __weak typeof(self) weakSelf = self;
     
     [NetworkManager getShoppingCarInfoWithPage:page pageSize:kPageSize finishBlock:^(id jsonData, NSError *error) {
+        
+        [weakSelf.shopCarListView.mj_header endRefreshing];
+        [weakSelf.shopCarListView.mj_footer endRefreshing];
+        
         if (error) {
             DLog(@"%@",error.localizedDescription);
         }
@@ -160,11 +134,85 @@
             else {
                 NSDictionary *dataDict = jsonDict[@"data"];
                 
-                [weakSelf.payNumberLabel setText:[dataDict objectForKey:@"allnum"]];
-                [weakSelf.payMoneyLabel setText:[dataDict objectForKey:@"allprice"]];
+                ShoppingCarModel *shopCarModel = [[ShoppingCarModel alloc] init];
+                shopCarModel.payMoneyCount = @"0.00";
+                
+                // 记录是否不到请求的数量,设置已无更多数据
+                NSInteger goodsCount = 0;
+                
+                // 店铺
+                NSArray *shopList = [dataDict objectForKey:@"lists"];
+                
+                if (shopList.count > 0) {
+                    
+                    NSMutableArray *tmpShopArray;
+                    if (page == 1) {
+                        tmpShopArray = [NSMutableArray arrayWithCapacity:shopList.count];
+                    }
+                    else {
+                        tmpShopArray = [NSMutableArray arrayWithArray:[MYSingleTon sharedMYSingleTon].shoppingCarModel.shopArray];
+                    }
+                    
+                    for (NSDictionary *shopDict in shopList) {
+                        
+                        OrderShopModel *shopModel = [[OrderShopModel alloc] init];
+                        [shopModel setValueWithDict:shopDict];
+                        
+                        [tmpShopArray addObjectSafe:shopModel];
+                        
+                        // 店铺下的商品
+                        NSArray *goodsList = [shopDict objectForKey:@"lists"];
+                        if (goodsList.count > 0) {
+                            
+                            NSMutableArray *tmpGoodsArray = [NSMutableArray arrayWithCapacity:goodsList.count];
+                            
+                            for (NSDictionary *goodsDict in goodsList) {
+                                OrderModel *goodsModel = [[OrderModel alloc] init];
+                                [goodsModel setValueWithDict:goodsDict];
+                                
+                                [tmpGoodsArray addObjectSafe:goodsModel];
+                                
+                                goodsCount++;
+                            }
+                            
+                            shopModel.goodsArray = [tmpGoodsArray copy];
+                        }
+                    }
+                    
+                    shopCarModel.shopArray = tmpShopArray;
+                }
+                
+                // 购物车
+                self.shopCarModel = shopCarModel;
+                [MYSingleTon sharedMYSingleTon].shoppingCarModel = shopCarModel;
+                
+                if (goodsCount < kPageSize) {
+                    weakSelf.shopCarListView.mj_footer.state = MJRefreshStateNoMoreData;
+                }
+                else {
+                    weakSelf.shopCarListView.mj_footer.state = MJRefreshStateIdle;
+                }
+                
+                // 空数据显示
+                if (shopCarModel.shopArray.count > 0) {
+                    [self hasData];
+                }
+                else {
+                    [self emptyData];
+                }
+                
+                // 更新 UI
+                [weakSelf.shopCarListView reloadData];
             }
         }
     }];
+}
+
+// 更新购买数量
+- (void)shoppingCarNumberCountUpdate
+{
+    [self setPayNumberLabelText:[MYSingleTon sharedMYSingleTon].shoppingCarModel.payNumberCount];
+    [self setPayMoneyLabelText:[NSString stringWithFormat:@"%@",[MYSingleTon sharedMYSingleTon].shoppingCarModel.payMoneyCount]];
 }
 
 - (void)emptyData
@@ -205,6 +253,10 @@
         make.top.equalTo(self.titleView.mas_bottom);
     }];
     [self.emptyView setHidden:YES];
+    
+    if (self.shopCarModel.shopArray.count == 0) {
+        [self emptyData];
+    }
 }
 
 - (void)addBottomView
@@ -291,6 +343,7 @@
         make.height.mas_equalTo(textSize.height);
     }];
     self.payMoneyLabel = payMoneyLabel;
+    [self setPayMoneyLabelText:@"0.00"];
 }
 
 - (void)addTitleView
@@ -376,6 +429,8 @@
     
     [MYSingleTon sharedMYSingleTon].shoppingCarModel.isSelectAll = sender.isSelected;
     
+    [[MYSingleTon sharedMYSingleTon] updateShoppingCarDataWithSection:0 row:0 actionSender:2];
+    
     [self.shopCarListView reloadData];
 }
 
@@ -413,7 +468,7 @@
     __weak typeof(self) weakSelf = self;
     cell.selectBlock = ^(OrderModel *model) {
         
-        [[MYSingleTon sharedMYSingleTon] updateShoppingCarDataWithSection:indexPath.section actionSender:1];
+        [[MYSingleTon sharedMYSingleTon] updateShoppingCarDataWithSection:indexPath.section row:indexPath.row actionSender:1];
         
         [weakSelf.shopCarListView reloadData];
     };
@@ -453,6 +508,8 @@
     
     __weak typeof(self) weakSelf = self;
     headerView.selectAllBlock = ^() {
+        [[MYSingleTon sharedMYSingleTon] updateShoppingCarDataWithSection:section row:0 actionSender:0];
+        
         [weakSelf.shopCarListView reloadData];
     };
     headerView.editBlock = ^() {
@@ -499,6 +556,17 @@
         [_shopCarListView setDataSource:self];
         [_shopCarListView setDelegate:self];
         _shopCarListView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        
+        __weak typeof(self) weakSelf = self;
+        // 下拉刷新
+        _shopCarListView.mj_header = [RefreshHeader headerWithTitle:@"下拉刷新购物车" freshingTitle:@"正在刷新..." freshBlock:^{
+            [weakSelf refreshShoppingCarData];
+        }];
+        
+        // 上拉加载
+        _shopCarListView.mj_footer = [RefreshFooter footerWithTitle:@"上拉加载更多数据" uploadingTitle:@"数据加载中..." noMoreTitle:@"木有啦~" uploadBlock:^{
+            [weakSelf loadMoreShoppingCarData];
+        }];
     }
     return _shopCarListView;
 }

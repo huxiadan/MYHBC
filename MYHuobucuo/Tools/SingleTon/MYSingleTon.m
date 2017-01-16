@@ -48,11 +48,17 @@ SingletonM(MYSingleTon)
 
 #pragma mark - Public
 
-- (void)updateShoppingCarDataWithSection:(NSUInteger)session actionSender:(NSInteger)actionSender
+// 更新购物车数据模型的操作
+- (void)updateShoppingCarDataWithSection:(NSUInteger)session row:(NSUInteger)row actionSender:(NSInteger)actionSender
 {
     if (!self.shoppingCarModel) {
         return;
     }
+    
+    // 总数计算
+    NSUInteger goodsCount = self.shoppingCarModel.payNumberCount;
+    // 总价计算
+    CGFloat moneyCount = [self.shoppingCarModel.payMoneyCount floatValue];
     
     OrderShopModel *shop = [self.shoppingCarModel.shopArray objectAtIndex:session];
     NSArray *goodsArray = shop.goodsArray;
@@ -60,11 +66,32 @@ SingletonM(MYSingleTon)
     if (actionSender == 0) {
         // 点击店铺的选择按钮
         for (OrderModel *goods in goodsArray) {
-            goods.isSelect = shop.isSelect;
+            
+            if (shop.isSelect == YES) {
+                
+                if (goods.isSelect != shop.isSelect) {
+                    
+                    goods.isSelect = shop.isSelect;
+                    
+                    goodsCount += goods.goodsNumber;
+                    moneyCount += goods.goodsNumber * [goods.goodsPrice floatValue];
+                }
+            }
+            else {
+                if (goods.isSelect != shop.isSelect) {
+                    
+                    goods.isSelect = shop.isSelect;
+                    
+                    goodsCount -= goods.goodsNumber;
+                    moneyCount -= goods.goodsNumber * [goods.goodsPrice floatValue];
+                }
+            }
         }
     }
     else if (actionSender == 1) {
         // 点击商品的选择按钮
+        
+        // 记录店铺是否要被选中
         BOOL shopIsSelected = YES;
         
         for (OrderModel *goods in goodsArray) {
@@ -73,11 +100,49 @@ SingletonM(MYSingleTon)
                 break;
             }
         }
+        
+        OrderModel *goods = [shop.goodsArray objectAtIndex:row];
+        
+        if (goods.isSelect) {
+            
+            goodsCount += goods.goodsNumber;
+            moneyCount += goods.goodsNumber * [goods.goodsPrice floatValue];
+        }
+        else {
+            
+            goodsCount -= goods.goodsNumber;
+            moneyCount -= goods.goodsNumber * [goods.goodsPrice floatValue];
+        }
+        
+        shop.isSelect = shopIsSelected;
+    }
+    else if (actionSender == 2) {
+        // 全选
+        if (self.shoppingCarModel.shopArray.count > 0) {
+            
+            for (OrderShopModel *eachShop in self.shoppingCarModel.shopArray) {
+                
+                if (eachShop.goodsArray.count > 0) {
+                    
+                    for (OrderModel *eachGoods in eachShop.goodsArray) {
+                        if (self.shoppingCarModel.isSelectAll) {
+                            // 全选
+                            goodsCount += eachGoods.goodsNumber;
+                            moneyCount += eachGoods.goodsNumber * [eachGoods.goodsPrice floatValue];
+                        }
+                        else {
+                            // 全不选
+                            goodsCount = 0;
+                            moneyCount = 0;
+                        }
+                    }
+                }
+            }
+        }
     }
     
-    if (shop.isSelect == NO) {
-        self.shoppingCarModel.isSelectAll = NO;
-    }
+    self.shoppingCarModel.payMoneyCount = [NSString stringWithFormat:@"%.2f",moneyCount];
+    self.shoppingCarModel.payNumberCount = goodsCount;
 }
 
 

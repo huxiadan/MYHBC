@@ -30,6 +30,13 @@ SingletonH(MYSingleTon)
 @property (nonatomic, strong) NSArray *goodsSelectSpecArray;    // 商品详情已选规格数组
 @property (nonatomic, assign) NSUInteger goodsSpecMaxCount;     // 商品详情已选规格的最大数量
 
-- (void)updateShoppingCarDataWithSection:(NSUInteger)session actionSender:(NSInteger)actionSender;
+
+/**
+ 更新购物车数据模型的操作
+
+ @param session 商品所在的 section
+ @param actionSender  动作类型(0:点击 cell 头的店铺选择/ 1:点击 cell 商品的选择)
+ */
+- (void)updateShoppingCarDataWithSection:(NSUInteger)session row:(NSUInteger)row actionSender:(NSInteger)actionSender;
 
 @end

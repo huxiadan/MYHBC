@@ -10,15 +10,6 @@
 
 @implementation OrderShopModel
 
-- (void)setIsSelect:(BOOL)isSelect
-{
-    _isSelect = isSelect;
-    
-    for (OrderModel *model in self.goodsArray) {
-        model.isSelect = isSelect;
-    }
-}
-
 - (void)setIsEdit:(BOOL)isEdit
 {
     _isEdit = isEdit;
@@ -35,6 +26,12 @@
     for (OrderModel *model in self.goodsArray) {
         model.isEditAll = isEditAll;
     }
+}
+
+- (void)setValueWithDict:(NSDictionary *)dict
+{
+    self.shopId = [dict objectForKey:@"shop_id"];
+    self.shopName = [dict objectForKey:@"shop_name"];
 }
 
 @end

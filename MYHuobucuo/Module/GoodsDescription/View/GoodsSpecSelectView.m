@@ -137,7 +137,7 @@
         make.height.mas_equalTo(fScreen(28));
     }];
     self.storeLabel = storeLabel;
-    [storeLabel setText:@"库存8888件"];
+    [storeLabel setText:@"库存"];
     
     // 选择的规格
     UILabel *selectLabel = [[UILabel alloc] init];
@@ -377,6 +377,10 @@
                     NSString *quantity = dealModel.specGroupQuantity;
                     
                     [self.storeLabel setText:[NSString stringWithFormat:@"库存 %@", quantity]];
+                    [MYSingleTon sharedMYSingleTon].goodsSpecMaxCount = [quantity integerValue];
+                    
+                    // 购买数量置为1
+                    [self.quantityLabel setText:@"1"];
                     
                     // 已选择
                     NSMutableString *tmpSelectLabel = [NSMutableString stringWithFormat:@"已选择: "];
@@ -502,14 +506,9 @@
     return _numberView;
 }
 
-
 @end
 
 
-
-
 @implementation GoodsSpecOptionButton
-
-
 
 @end

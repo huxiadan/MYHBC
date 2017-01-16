@@ -27,4 +27,6 @@
 @property (nonatomic, assign) BOOL isEdit;              // 是否编辑(购物车使用)
 @property (nonatomic, assign) BOOL isEditAll;           // 是否进入全部编辑(购物车使用)
 
+- (void)setValueWithDict:(NSDictionary *)dict;
+
 @end

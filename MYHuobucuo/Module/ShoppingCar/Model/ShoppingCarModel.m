@@ -14,8 +14,16 @@
 {
     _isSelectAll = isSelectAll;
     
-    for (OrderShopModel *model in self.shopArray) {
-        model.isSelect = isSelectAll;
+    if (self.shopArray.count > 0) {
+        for (OrderShopModel *shop in self.shopArray) {
+            shop.isSelect = isSelectAll;
+            
+            if (shop.goodsArray.count > 0) {
+                for (OrderModel *goods in shop.goodsArray) {
+                    goods.isSelect = isSelectAll;
+                }
+            }
+        }
     }
 }
 
@@ -28,11 +36,11 @@
     }
 }
 
-- (void)setValueWithDict:(NSDictionary *)dict
+- (void)setPayNumberCount:(NSUInteger)payNumberCount
 {
-    self.payMoneyCount = [dict objectForKey:@"allprice"];
+    _payNumberCount = payNumberCount;
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:kShoppingCarBuyNumberCountUpdateNoti object:nil];
 }
-
-
 
 @end
